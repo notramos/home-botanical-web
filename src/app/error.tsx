@@ -27,7 +27,7 @@ export default function Error({
             Error ID: {error.digest}
           </p>
         )}
-        <Button onClick={reset} variant="primary" size="lg">
+        <Button onClick={reset} size="lg">
           Try Again
         </Button>
       </div>

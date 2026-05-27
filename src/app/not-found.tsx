@@ -19,8 +19,8 @@ export default function NotFound() {
           Looks like this leaf has blown away. The page you&apos;re looking for
           doesn&apos;t exist or has been moved.
         </p>
-        <Button asChild href="/" variant="primary" size="lg">
-          Go Home
+        <Button asChild size="lg">
+          <Link href="/">Go Home</Link>
         </Button>
       </div>
     </div>

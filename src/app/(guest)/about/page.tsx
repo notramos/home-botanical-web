@@ -175,8 +175,8 @@ export default function AboutPage() {
             Browse our curated collection and find the perfect plant to bring
             life into your space.
           </p>
-          <Button asChild href="/catalog" size="lg">
-            Explore Plants
+          <Button asChild size="lg">
+            <Link href="/catalog">Explore Plants</Link>
           </Button>
         </div>
       </section>

@@ -18,14 +18,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-text-muted"
+            className="block text-sm font-medium text-muted-foreground"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {prefix && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-muted">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
               {prefix}
             </div>
           )}
@@ -33,12 +33,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full rounded-lg border border-accent-green/15 bg-bg-main px-4 py-2.5 text-sm text-text-light",
-              "placeholder:text-text-muted/60",
+              "w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground",
+              "placeholder:text-muted-foreground/60",
               "transition-colors duration-200",
-              "focus:outline-none focus:border-accent-green/50 focus:ring-1 focus:ring-accent-green/30",
+              "focus:outline-none focus:border-ring focus:ring-3 focus:ring-ring/30",
               "disabled:opacity-50 disabled:cursor-not-allowed",
-              error && "border-danger/50 focus:border-danger focus:ring-danger/30",
+              error && "border-destructive/50 focus:border-destructive focus:ring-destructive/30",
               prefix && "pl-10",
               className
             )}
@@ -46,7 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           />
         </div>
         {error && (
-          <p className="text-xs text-danger/90">{error}</p>
+          <p className="text-xs text-destructive/90">{error}</p>
         )}
       </div>
     );

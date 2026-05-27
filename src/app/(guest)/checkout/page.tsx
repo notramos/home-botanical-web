@@ -120,9 +120,8 @@ export default function CheckoutPage() {
                     <Button
                       variant="outline"
                       asChild
-                      href="/catalog"
                     >
-                      Browse Plants
+                      <Link href="/catalog">Browse Plants</Link>
                     </Button>
                   </CardContent>
                 </Card>

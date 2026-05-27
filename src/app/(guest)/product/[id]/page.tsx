@@ -122,7 +122,7 @@ export default async function ProductDetailPage({
                     {product.category.replace(/_/g, " ")}
                   </Badge>
                 )}
-                <Badge variant={product.stock > 0 ? "active" : "draft"}>
+                <Badge variant={product.stock > 0 ? "default" : "outline"}>
                   {product.stock > 0 ? "In Stock" : "Out of Stock"}
                 </Badge>
               </div>
