@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import bcrypt from "bcryptjs";
+const { PrismaClient } = require("@prisma/client");
+const { PrismaNeon } = require("@prisma/adapter-neon");
+const bcrypt = require("bcryptjs");
 
 const url = "postgresql://neondb_owner:npg_Hdlvzj7L0GZE@ep-flat-thunder-aoykgroe-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require";
 
@@ -49,7 +49,7 @@ async function main() {
     await prisma.product.upsert({
       where: { slug: product.slug },
       update: {},
-      create: product as any,
+      create: product,
     });
   }
 
