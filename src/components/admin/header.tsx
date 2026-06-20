@@ -2,21 +2,19 @@
 
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
 interface HeaderProps {
   title: string;
+  onToggleSidebar?: () => void;
 }
 
-export default function Header({ title }: HeaderProps) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
+export default function Header({ title, onToggleSidebar }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-8 py-3 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="flex items-center gap-4">
         <button
           type="button"
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={onToggleSidebar}
           className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           aria-label="Toggle sidebar"
         >

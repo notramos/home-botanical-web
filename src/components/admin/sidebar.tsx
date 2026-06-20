@@ -77,13 +77,20 @@ const quickLinks = [
   { name: "View Orders", href: "/admin/orders", icon: "→" },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-40 h-full w-64 flex flex-col bg-background border-r border-border transition-transform duration-300 -translate-x-full lg:translate-x-0"
+        "fixed top-0 left-0 z-40 h-full w-64 flex flex-col bg-background border-r border-border transition-transform duration-300",
+        isOpen ? "translate-x-0" : "-translate-x-full",
+        "lg:translate-x-0"
       )}
     >
       {/* Logo */}
