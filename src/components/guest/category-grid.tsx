@@ -30,10 +30,10 @@ export function CategoryGrid({
         </div>
       )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="flex md:grid md:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           {categories.map((cat) => (
+            <div key={cat.slug} className="snap-start shrink-0 w-[45vw] md:w-auto">
             <Link
-              key={cat.slug}
               href={`/catalog?category=${cat.slug}`}
               className="group relative aspect-[4/5] rounded-xl overflow-hidden"
             >
@@ -54,6 +54,7 @@ export function CategoryGrid({
               {/* Hover accent line */}
               <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-emerald scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
             </Link>
+            </div>
           ))}
         </div>
       </div>

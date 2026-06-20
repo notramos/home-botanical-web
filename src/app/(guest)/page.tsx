@@ -237,11 +237,11 @@ export default async function HomePage() {
               Simple tips to keep your greenery thriving all year round.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {plantCareTips.map((tip, i) => (
+            <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+              {plantCareTips.map((tip, i) => (
               <div
                 key={i}
-                className="group rounded-xl overflow-hidden border border-emerald/15 bg-bg-soft/50 transition-all duration-300 hover:border-emerald/30 hover:-translate-y-1"
+                className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto group rounded-xl overflow-hidden border border-emerald/15 bg-bg-soft/50 transition-all duration-300 hover:border-emerald/30 hover:-translate-y-1"
               >
                 <div className="relative h-48 overflow-hidden">
                   <Image
@@ -281,9 +281,11 @@ export default async function HomePage() {
                 most.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
               {displayProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <div key={product.id} className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto">
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
             <div className="mt-12 text-center">
@@ -309,11 +311,11 @@ export default async function HomePage() {
               Real reviews from real plant lovers across Australia.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-forest/10 bg-bg-soft/30 p-6 transition-all duration-300 hover:border-forest/25 hover:-translate-y-1"
+                className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto rounded-xl border border-forest/10 bg-bg-soft/30 p-6 transition-all duration-300 hover:border-forest/25 hover:-translate-y-1"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 rounded-full bg-forest/15 flex items-center justify-center text-forest font-heading font-bold text-lg flex-shrink-0">

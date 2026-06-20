@@ -331,13 +331,15 @@ export function CatalogContent({
         <div
           className={
             viewMode === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              ? "flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0"
               : "space-y-4"
           }
         >
           {mappedProducts.map((product) =>
             viewMode === "grid" ? (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} className="snap-start shrink-0 w-[75vw] sm:w-auto">
+                <ProductCard product={product} />
+              </div>
             ) : (
               <ProductListItem key={product.id} product={product} />
             ),
