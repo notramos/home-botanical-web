@@ -4,10 +4,36 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { productSchema, orderSchema } from "@/lib/validations";
 import { slugify, generateOrderNumber } from "@/lib/utils";
+import { sendOrderConfirmation, sendAdminNotification, sendOrderStatusUpdate } from "@/lib/email";
+import { sendOrderConfirmation as sendWAOrderConfirmation, sendAdminNotification as sendWAAdminNotification, sendOrderStatusUpdate as sendWAOrderStatusUpdate } from "@/lib/whatsapp";
 import { z } from "zod";
 
 function serialize<T>(data: T): T {
   return JSON.parse(JSON.stringify(data));
+}
+
+type StockItem = { productId?: number | null; quantity: number };
+
+async function decrementStock(items: StockItem[]) {
+  for (const item of items) {
+    if (item.productId) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: { stock: { decrement: item.quantity } },
+      });
+    }
+  }
+}
+
+async function incrementStock(items: StockItem[]) {
+  for (const item of items) {
+    if (item.productId) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: { stock: { increment: item.quantity } },
+      });
+    }
+  }
 }
 
 export async function createProduct(data: z.infer<typeof productSchema>) {
@@ -133,41 +159,62 @@ export async function createOrder(data: z.infer<typeof orderSchema> & { items: {
 
   if (items.length === 0) throw new Error("Minimal harus ada 1 item");
 
-  const orderNumber = generateOrderNumber();
-  let subtotal = 0;
+  const order = await prisma.$transaction(async (tx) => {
+    for (const item of items) {
+      if (item.productId) {
+        const product = await tx.product.findUnique({ where: { id: item.productId } });
+        if (!product) throw new Error(`Produk ${item.productName} tidak ditemukan`);
+        if (product.stock < item.quantity) throw new Error(`Stok ${item.productName} tidak mencukupi (tersisa ${product.stock})`);
+      }
+    }
 
-  const orderItems = items.map((item) => {
-    const itemSubtotal = item.quantity * item.price;
-    subtotal += itemSubtotal;
-    return {
-      productId: item.productId || null,
-      productName: item.productName,
-      productSku: item.productSku || null,
-      quantity: item.quantity,
-      price: item.price,
-      subtotal: itemSubtotal,
-    };
-  });
+    const orderNumber = generateOrderNumber();
+    let subtotal = 0;
 
-  const order = await prisma.order.create({
-    data: {
-      orderNumber,
-      customerName: validated.customerName,
-      customerEmail: validated.customerEmail,
-      customerPhone: validated.customerPhone,
-      shippingAddress: validated.shippingAddress,
-      subtotal,
-      shippingCost: 0,
-      tax: 0,
-      total: subtotal,
-      status: validated.status,
-      paymentStatus: validated.paymentStatus,
-      paymentMethod: validated.paymentMethod,
-      paymentReference: validated.paymentReference,
-      notes: validated.notes,
-      items: { create: orderItems },
-    },
-    include: { items: true },
+    const orderItems = items.map((item) => {
+      const itemSubtotal = item.quantity * item.price;
+      subtotal += itemSubtotal;
+      return {
+        productId: item.productId || null,
+        productName: item.productName,
+        productSku: item.productSku || null,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: itemSubtotal,
+      };
+    });
+
+    const order = await tx.order.create({
+      data: {
+        orderNumber,
+        customerName: validated.customerName,
+        customerEmail: validated.customerEmail,
+        customerPhone: validated.customerPhone,
+        shippingAddress: validated.shippingAddress,
+        subtotal,
+        shippingCost: 0,
+        tax: 0,
+        total: subtotal,
+        status: validated.status,
+        paymentStatus: validated.paymentStatus,
+        paymentMethod: validated.paymentMethod,
+        paymentReference: validated.paymentReference,
+        notes: validated.notes,
+        items: { create: orderItems },
+      },
+      include: { items: true },
+    });
+
+    for (const item of items) {
+      if (item.productId) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
+    }
+
+    return order;
   });
 
   await prisma.transactionLog.create({
@@ -181,6 +228,30 @@ export async function createOrder(data: z.infer<typeof orderSchema> & { items: {
       performedBy: "Admin",
     },
   });
+
+  // Notifications
+  const orderData = {
+    orderNumber: order.orderNumber,
+    customerName: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    shippingAddress: order.shippingAddress,
+    total: Number(order.total),
+    status: order.status,
+    items: order.items.map((i) => ({
+      productName: i.productName,
+      quantity: i.quantity,
+      price: Number(i.price),
+      subtotal: Number(i.subtotal),
+    })),
+  };
+
+  await Promise.allSettled([
+    sendOrderConfirmation(orderData),
+    sendAdminNotification(orderData),
+    sendWAOrderConfirmation(orderData),
+    sendWAAdminNotification(orderData),
+  ]);
 
   revalidatePath("/admin/orders");
   return serialize(order);
@@ -197,6 +268,10 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
   const items = data.items;
   if (items.length === 0) throw new Error("Minimal harus ada 1 item");
 
+  await incrementStock(oldOrder.items);
+
+  await prisma.orderItem.deleteMany({ where: { orderId: id } });
+
   let subtotal = 0;
   const orderItems = items.map((item) => {
     const itemSubtotal = item.quantity * item.price;
@@ -210,8 +285,6 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
       subtotal: itemSubtotal,
     };
   });
-
-  await prisma.orderItem.deleteMany({ where: { orderId: id } });
 
   const order = await prisma.order.update({
     where: { id },
@@ -232,6 +305,8 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
     include: { items: true },
   });
 
+  await decrementStock(items);
+
   await prisma.transactionLog.create({
     data: {
       type: "order",
@@ -250,8 +325,15 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
 }
 
 export async function updateOrderStatus(id: number, status: string) {
-  const order = await prisma.order.findUnique({ where: { id } });
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: { items: true },
+  });
   if (!order) throw new Error("Pesanan tidak ditemukan");
+
+  if (status === "cancelled" && order.status !== "cancelled") {
+    await incrementStock(order.items);
+  }
 
   const updateData: Record<string, unknown> = { status };
   if (status === "shipped" && !order.shippedAt) updateData.shippedAt = new Date();
@@ -271,6 +353,38 @@ export async function updateOrderStatus(id: number, status: string) {
       performedBy: "Admin",
     },
   });
+
+  // Notification
+  const updatedOrder = await prisma.order.findUnique({
+    where: { id },
+    include: { items: true },
+  });
+  if (updatedOrder) {
+    await Promise.allSettled([
+      sendOrderStatusUpdate({
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerEmail: updatedOrder.customerEmail,
+        customerPhone: updatedOrder.customerPhone,
+        shippingAddress: updatedOrder.shippingAddress,
+        total: Number(updatedOrder.total),
+        status: updatedOrder.status,
+        items: updatedOrder.items.map((i) => ({
+          productName: i.productName,
+          quantity: i.quantity,
+          price: Number(i.price),
+          subtotal: Number(i.subtotal),
+        })),
+      }),
+      sendWAOrderStatusUpdate({
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerPhone: updatedOrder.customerPhone,
+        total: Number(updatedOrder.total),
+        status: updatedOrder.status,
+      }),
+    ]);
+  }
 
   revalidatePath("/admin/orders");
 }
@@ -301,6 +415,40 @@ export async function updateOrderPayment(id: number, data: { paymentStatus: stri
     },
   });
 
+  // Notification if payment confirmed
+  if (data.paymentStatus === "paid") {
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+    if (updatedOrder) {
+      await Promise.allSettled([
+        sendOrderStatusUpdate({
+          orderNumber: updatedOrder.orderNumber,
+          customerName: updatedOrder.customerName,
+          customerEmail: updatedOrder.customerEmail,
+          customerPhone: updatedOrder.customerPhone,
+          shippingAddress: updatedOrder.shippingAddress,
+          total: Number(updatedOrder.total),
+          status: updatedOrder.status,
+          items: updatedOrder.items.map((i) => ({
+            productName: i.productName,
+            quantity: i.quantity,
+            price: Number(i.price),
+            subtotal: Number(i.subtotal),
+          })),
+        }),
+        sendWAOrderStatusUpdate({
+          orderNumber: updatedOrder.orderNumber,
+          customerName: updatedOrder.customerName,
+          customerPhone: updatedOrder.customerPhone,
+          total: Number(updatedOrder.total),
+          status: updatedOrder.status,
+        }),
+      ]);
+    }
+  }
+
   revalidatePath("/admin/orders");
 }
 
@@ -310,6 +458,8 @@ export async function deleteOrder(id: number) {
     include: { items: true },
   });
   if (!order) throw new Error("Pesanan tidak ditemukan");
+
+  await incrementStock(order.items);
 
   await prisma.transactionLog.create({
     data: {

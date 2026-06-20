@@ -24,7 +24,7 @@ export function CategoryGrid({
     <section className={cn("py-12 md:py-16", className)}>
       {title && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-          <h2 className="text-2xl md:text-3xl font-heading font-bold text-accent-green text-center">
+          <h2 className="text-2xl md:text-3xl font-heading font-bold text-forest text-center">
             {title}
           </h2>
         </div>
@@ -39,23 +39,20 @@ export function CategoryGrid({
             >
               {/* Background image */}
               <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                style={{
-                  backgroundImage: `url(${
-                    CATEGORY_IMAGES[cat.slug] || CATEGORY_IMAGES.default
-                  })`,
-                }}
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${CATEGORY_IMAGES[cat.slug] || CATEGORY_IMAGES.default})` }}
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent transition-transform duration-500 group-hover:scale-110" />
 
               {/* Label */}
               <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
-                <h3 className="text-base md:text-lg font-heading font-semibold text-white drop-shadow-sm group-hover:text-accent-light transition-colors">
+                  <h3 className="text-base md:text-lg font-heading font-semibold text-white drop-shadow-sm group-hover:text-emerald transition-colors">
                   {cat.name}
                 </h3>
               </div>
 
               {/* Hover accent line */}
-              <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-accent-light scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-emerald scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
             </Link>
           ))}
         </div>

@@ -70,6 +70,50 @@ export const statusColors: Record<string, { bg: string; text: string }> = {
   failed: { bg: "rgba(220, 38, 38, 0.1)", text: "#dc2626" },
 };
 
+const PLANT_PHOTO_IDS = [
+  "1614594975525-e45190c55d0b",
+  "1521488357999-ff03ac2b5fd7",
+  "1497215842964-222b430dc094",
+  "1750341005609-48c4b98fc822",
+  "1459411552884-841db9b3cc2a",
+  "1777287514552-fda9d967cbb4",
+  "1485955900006-10f4d324d411",
+  "1416879595882-3373a0480b5b",
+  "1769536205238-d7180c9936bd",
+  "1771022715035-8ca5e859d0d0",
+  "1773084258196-f8799453be7e",
+  "1463936575829-25148e1db1b8",
+  "1504384308090-c894fdcc538d",
+  "1778562825462-641362a52c2e",
+  "1778079840490-af5643183fcd",
+  "1774053054226-ecabae8bbde6",
+];
+
+export function getProductImageUrl(seed: number, size = 400): string {
+  const id = PLANT_PHOTO_IDS[seed % PLANT_PHOTO_IDS.length];
+  return `https://images.unsplash.com/photo-${id}?w=${size}&h=${Math.round(size * 0.75)}&fit=crop&auto=format`;
+}
+
+const BG_PHOTO_IDS = [
+  "1774542875422-5b825fa05024",
+  "1776459316613-aa5523c041de",
+  "1776413378558-52b646ae144c",
+  "1485955900006-10f4d324d411",
+  "1777644439670-9699a9a429a2",
+  "1416879595882-3373a0480b5b",
+  "1521488357999-ff03ac2b5fd7",
+  "1614594975525-e45190c55d0b",
+  "1497215842964-222b430dc094",
+  "1750341005609-48c4b98fc822",
+  "1777287514552-fda9d967cbb4",
+  "1769536205238-d7180c9936bd",
+];
+
+export function getBackgroundImageUrl(seed: number, size = 1920): string {
+  const id = BG_PHOTO_IDS[seed % BG_PHOTO_IDS.length];
+  return `https://images.unsplash.com/photo-${id}?w=${size}&h=${Math.round(size * 0.5)}&fit=crop&auto=format`;
+}
+
 export const categories: { value: string; label: string }[] = [
   { value: "succulents", label: "Succulents" },
   { value: "tropical", label: "Tropical Plants" },

@@ -2,10 +2,9 @@
 
 import { useCartStore } from "@/stores/cart-store";
 import { useRouter } from "next/navigation";
-import { CloseIcon, PlusIcon, MinusIcon } from "@/components/shared/icons";
-import { formatPrice } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { CloseIcon, PlusIcon, MinusIcon } from "@/components/shared/icons";
+import { formatPrice, cn, getProductImageUrl } from "@/lib/utils";
 import { useEffect, useCallback } from "react";
 
 export function CartSidebar() {
@@ -89,20 +88,15 @@ export function CartSidebar() {
                   className="flex gap-4 p-3 rounded-xl bg-black/[0.02] border border-black/5"
                 >
                   {/* Image */}
-                  <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-bg-main">
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                        sizes="80px"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-text-muted">
-                        <LeafIcon className="w-6 h-6" />
-                      </div>
-                    )}
+                  <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                    <Image
+                      src={getProductImageUrl(item.id)}
+                      alt={item.name}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
                   </div>
 
                   {/* Info */}
@@ -115,7 +109,7 @@ export function CartSidebar() {
                         {item.category}
                       </p>
                     )}
-                    <p className="text-sm text-accent-light font-medium mt-1">
+                    <p className="text-sm text-emerald font-medium mt-1">
                       {formatPrice(item.price)}
                     </p>
                   </div>
@@ -159,7 +153,7 @@ export function CartSidebar() {
             <div className="absolute bottom-0 left-0 right-0 border-t border-black/10 bg-bg-soft px-6 py-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-text-muted">Subtotal</span>
-                <span className="text-lg font-heading font-semibold text-accent-light">
+                <span className="text-lg font-heading font-semibold text-emerald">
                   {formatPrice(total())}
                 </span>
               </div>
@@ -172,7 +166,7 @@ export function CartSidebar() {
                     setOpen(false);
                     router.push("/checkout");
                   }}
-                  className="flex-1 h-11 rounded-lg bg-accent-light text-bg-main font-medium text-sm hover:bg-accent-green/90 transition-colors"
+                  className="flex-1 h-11 rounded-lg bg-emerald text-bg-main font-medium text-sm hover:bg-forest/90 transition-colors"
                 >
                   Checkout
                 </button>

@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { statusColors } from "@/lib/utils";
 
 interface StatusBadgeProps {
@@ -31,19 +32,33 @@ export default function StatusBadge({ status, type = "status" }: StatusBadgeProp
 
   const label = labels[status.toLowerCase()] || status;
 
+  const variantMap: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    active: "default",
+    paid: "default",
+    delivered: "default",
+    in_stock: "default",
+    draft: "secondary",
+    pending: "secondary",
+    processing: "secondary",
+    unpaid: "secondary",
+    low_stock: "secondary",
+    archived: "outline",
+    cancelled: "outline",
+    shipped: "outline",
+    refunded: "destructive",
+    failed: "destructive",
+    out_of_stock: "destructive",
+  };
+
+  const variant = variantMap[status.toLowerCase()] || "secondary";
+
   return (
-    <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full capitalize"
-      style={{
-        backgroundColor: colors.bg,
-        color: colors.text,
-      }}
-    >
+    <Badge variant={variant} className="gap-1.5 capitalize">
       <span
         className="w-1.5 h-1.5 rounded-full"
         style={{ backgroundColor: colors.text }}
       />
       {label}
-    </span>
+    </Badge>
   );
 }

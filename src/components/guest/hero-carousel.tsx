@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, getProductImageUrl } from "@/lib/utils";
 import { HERO_SLIDES } from "@/lib/constants";
 
 interface HeroCarouselProps {
@@ -53,7 +53,7 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
           <svg viewBox="0 0 800 1000" className="w-full h-full" preserveAspectRatio="xMinYMid meet">
             <path
               d="M0,0 C280,0 520,140 560,400 C600,660 420,860 0,1000Z"
-              fill="rgba(46,125,79,0.15)"
+              fill="rgba(26,107,60,0.18)"
             />
           </svg>
         </div>
@@ -72,31 +72,29 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
               )}
             >
               <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${getProductImageUrl(index, 800)})` }}
+              />
+              <div
                 className={cn(
-                  "absolute inset-0 bg-cover bg-center transition-transform duration-[8s] ease-out",
+                  "absolute inset-0 bg-gradient-to-br from-emerald/40 via-forest/30 to-sage/25 transition-transform duration-[8s] ease-out",
                   index === current && "scale-110"
                 )}
-                style={{ backgroundImage: `url(${slide.image})` }}
               />
             </div>
           ))}
         </div>
 
         {/* Abstract floating circles */}
-        <div className="absolute right-[18%] top-[12%] w-28 h-28 rounded-full border border-accent-green/20 pointer-events-none"
+        <div className="absolute right-[18%] top-[12%] w-28 h-28 rounded-full border border-forest/20 pointer-events-none"
              style={{ animation: "float 6s ease-in-out infinite" }} />
-        <div className="absolute left-[42%] bottom-[18%] w-16 h-16 rounded-full border border-accent-light/30 pointer-events-none"
+        <div className="absolute left-[42%] bottom-[18%] w-16 h-16 rounded-full border border-sage/40 pointer-events-none"
              style={{ animation: "float-slow 8s ease-in-out infinite" }} />
-        <div className="absolute right-[8%] bottom-[25%] w-12 h-12 rounded-full bg-accent-light/10 pointer-events-none"
+        <div className="absolute right-[8%] bottom-[25%] w-12 h-12 rounded-full bg-emerald/10 pointer-events-none"
              style={{ animation: "float 7s ease-in-out infinite 2s" }} />
-        <div className="absolute left-[50%] top-[22%] w-6 h-6 rounded-full bg-accent-green/8 pointer-events-none"
+        <div className="absolute left-[50%] top-[22%] w-6 h-6 rounded-full bg-forest/10 pointer-events-none"
              style={{ animation: "float-slow 5s ease-in-out infinite 1s" }} />
 
-        {/* Overlay subtle gradient on image edge */}
-        <div className="absolute right-0 top-0 bottom-0 w-[65%] pointer-events-none"
-             style={{
-               background: "linear-gradient(90deg, rgba(46,125,79,0.12) 0%, transparent 10%, transparent 100%)"
-             }} />
       </div>
 
       {/* ======================= */}
@@ -112,12 +110,15 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
             )}
           >
             <div
-              className={cn(
-                "absolute inset-0 bg-cover bg-center transition-transform duration-[6s] ease-out",
-                index === current && "scale-110"
-              )}
-              style={{ backgroundImage: `url(${slide.image})` }}
-            />
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${getProductImageUrl(index, 500)})` }}
+              />
+            <div
+                className={cn(
+                  "absolute inset-0 bg-gradient-to-br from-emerald/40 via-forest/30 to-sage/25 transition-transform duration-[6s] ease-out",
+                  index === current && "scale-110"
+                )}
+              />
           </div>
         ))}
         <div className="absolute inset-0 z-[1]" style={{
@@ -132,34 +133,56 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 items-center min-h-screen">
           {/* Left: Text */}
           <div className="animate-fade-in-up max-w-[560px] py-32 md:pr-8">
-            <p className="text-accent-light text-[0.7rem] font-medium tracking-[0.25em] uppercase mb-6">
+            <p className="md:text-emerald text-white/80 text-[0.7rem] font-medium tracking-[0.25em] uppercase mb-6">
               Curated Indoor Plants
             </p>
-            <h1 className="font-heading font-normal md:text-text-light text-accent-light leading-[1.15] mb-6"
-                style={{ fontSize: "clamp(2.4rem, 4.5vw, 4rem)" }}>
+            <h1 className="font-heading font-normal md:text-text-light text-white leading-[1.15] mb-6"
+                 style={{ fontSize: "clamp(2.4rem, 4.5vw, 4rem)" }}>
               Add a little{" "}
-              <span className="font-semibold text-accent-light">
+              <span className="md:text-emerald text-white font-semibold">
                 {slides[current].title}
               </span>{" "}
               to your space
             </h1>
-            <p className="text-base leading-relaxed mb-8 max-w-[540px] font-light md:text-text-muted text-accent-green/70">
+            <p className="text-base leading-relaxed mb-8 max-w-[540px] font-light md:text-text-muted text-white/70">
               {slides[current].desc}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/catalog"
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-sm bg-accent-green text-bg-main text-sm tracking-wider no-underline transition-all duration-300 hover:bg-accent-light hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-sm bg-forest text-bg-main text-sm tracking-wider no-underline transition-all duration-300 hover:bg-emerald hover:-translate-y-0.5"
               >
                 Shop Collection
               </Link>
               <Link
                 href="/catalog"
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-sm bg-transparent md:text-text-light text-accent-light text-sm tracking-wider no-underline border border-solid transition-all duration-300 md:hover:border-text-light hover:border-accent-light md:hover:bg-black/5 hover:bg-accent-green/10"
-                 style={{ borderColor: "rgba(46,125,79,0.3)" }}
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-sm bg-transparent md:text-text-light text-white text-sm tracking-wider no-underline border border-solid transition-all duration-300 md:hover:border-text-light hover:border-emerald md:hover:bg-black/5 hover:bg-forest/10"
+                 style={{ borderColor: "rgba(255,255,255,0.3)" }}
               >
                 View Catalog
               </Link>
+            </div>
+
+            {/* Mobile plant info card */}
+            <div className="md:hidden mt-8">
+              <div className="p-4 rounded-sm w-full animate-fade-in-up"
+                   style={{
+                     background: "rgba(255,255,255,0.06)",
+                     backdropFilter: "blur(16px) saturate(180%)",
+                     WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                     border: "1px solid rgba(255,255,255,0.1)",
+                     borderLeft: "3px solid var(--color-emerald, #2d9f5e)",
+                     boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"
+                   }}>
+                <div className="text-left">
+                    <p className="font-heading font-semibold text-base text-white/90 mb-1">
+                    {slides[current].latin}
+                  </p>
+                  <p className="text-xs leading-relaxed text-white/70">
+                    {slides[current].desc}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -167,27 +190,30 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
           <div className="hidden md:flex items-end justify-end h-full py-32">
             <div className="p-6 rounded-sm max-w-[340px] w-full animate-fade-in-right"
                  style={{
-                   background: "rgba(26,46,34,0.85)",
-                   backdropFilter: "blur(10px)",
-                    borderRight: "3px solid var(--color-accent-light, #7dd181)"
+                   background: "rgba(255,255,255,0.06)",
+                   backdropFilter: "blur(16px) saturate(180%)",
+                   WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                   border: "1px solid rgba(255,255,255,0.1)",
+                   borderLeft: "3px solid var(--color-emerald, #2d9f5e)",
+                   boxShadow: "0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08)"
                  }}>
               <div className="text-right">
-                <p className="font-heading italic text-lg text-accent-green mb-2">
+                  <p className="font-heading font-semibold text-lg text-white/90 mb-2">
                   {slides[current].latin}
                 </p>
-                <p className="text-sm leading-relaxed text-accent-green/70">
+                <p className="text-sm leading-relaxed text-white/70">
                   {slides[current].desc}
                 </p>
-              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
       {/* Navigation arrows */}
       <button
         onClick={goPrev}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-10 p-2.5 rounded-full bg-accent-green/30 backdrop-blur-md text-accent-light hover:bg-accent-green/50 transition-all hidden md:flex"
+        className="absolute left-6 top-1/2 -translate-y-1/2 z-10 p-2.5 rounded-full bg-forest/40 backdrop-blur-md text-emerald hover:bg-forest/60 transition-all hidden md:flex"
         aria-label="Previous slide"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -196,7 +222,7 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
       </button>
       <button
         onClick={goNext}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-10 p-2.5 rounded-full bg-accent-green/30 backdrop-blur-md text-accent-light hover:bg-accent-green/50 transition-all hidden md:flex"
+        className="absolute right-6 top-1/2 -translate-y-1/2 z-10 p-2.5 rounded-full bg-forest/40 backdrop-blur-md text-emerald hover:bg-forest/60 transition-all hidden md:flex"
         aria-label="Next slide"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -213,8 +239,8 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
             className={cn(
               "h-2 rounded-full transition-all duration-300",
               i === current
-                ? "bg-accent-light w-6"
-                : "md:bg-black/15 bg-accent-green/30 md:hover:bg-black/30 hover:bg-accent-green/50 w-2"
+                ? "bg-emerald w-6"
+                : "md:bg-black/15 bg-accent-green/30 md:hover:bg-black/30 hover:bg-forest/50 w-2"
             )}
             aria-label={`Go to slide ${i + 1}`}
           />

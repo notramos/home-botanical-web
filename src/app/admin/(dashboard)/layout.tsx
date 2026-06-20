@@ -9,7 +9,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (session.user.role !== "admin") redirect("/");
 
   return (
-    <div className="flex h-screen bg-bg-main">
+    <div className="flex h-screen bg-background">
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
         <AdminHeader title="Admin Panel" />

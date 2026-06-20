@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, getBackgroundImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
-import { CartIcon, MenuIcon, CloseIcon, SearchIcon } from "@/components/shared/icons";
+import { CartIcon, MenuIcon, CloseIcon, SearchIcon, LeafIcon } from "@/components/shared/icons";
 import { useEffect, useState, useRef } from "react";
 
 const navLinks = [
@@ -66,6 +66,8 @@ export function Navbar() {
     return pathname.startsWith(href);
   };
 
+  const navbarBgImage = getBackgroundImageUrl(9);
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
@@ -73,9 +75,14 @@ export function Navbar() {
           className={cn(
             "pointer-events-auto transition-all duration-700 ease-out",
             scrolled
-              ? "w-[calc(100%-60px)] max-w-[900px] h-14 mt-4 rounded-2xl shadow-lg shadow-black/5 bg-bg-main/80 backdrop-blur-2xl saturate-[1.8] border border-black/[0.06] px-5"
-              : "w-full h-16 md:h-20 bg-transparent px-4 sm:px-6 lg:px-8"
+              ? "w-[calc(100%-60px)] max-w-[900px] h-14 mt-4 rounded-2xl shadow-xl shadow-black/15 px-5 border border-emerald/20"
+              : "w-full h-16 md:h-20 px-4 sm:px-6 lg:px-8 border-b border-emerald/20"
           )}
+          style={{
+            backgroundImage: `linear-gradient(135deg, rgba(18,45,30,0.95), rgba(30,80,50,0.88)), url(${navbarBgImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
         >
           <div className={cn(
             "mx-auto flex items-center justify-between h-full",
@@ -86,7 +93,7 @@ export function Navbar() {
               onClick={() => setMobileOpen(!mobileOpen)}
               className={cn(
                 "md:hidden p-2 transition-colors",
-                scrolled ? "text-accent-green hover:text-accent-light" : "text-accent-green hover:text-accent-light"
+                scrolled ? "text-white/80 hover:text-emerald" : "text-white/90 hover:text-emerald"
               )}
               aria-label="Toggle menu"
             >
@@ -101,12 +108,13 @@ export function Navbar() {
             <Link
               href="/"
               className={cn(
-                "font-heading font-bold tracking-wide transition-all duration-300",
+                "flex items-center gap-2 font-heading font-semibold italic tracking-tight transition-all duration-300",
                 scrolled
-                  ? "text-2xl text-accent-green hover:text-accent-light"
-                  : "text-xl md:text-2xl md:text-accent-light text-accent-light md:drop-shadow-none drop-shadow-sm"
+                  ? "text-xl text-white/90 hover:text-emerald"
+                  : "text-xl md:text-2xl text-white drop-shadow-md"
               )}
             >
+              <LeafIcon className="w-5 h-5 text-emerald drop-shadow-sm" />
               Home Botanical
             </Link>
 
@@ -119,14 +127,14 @@ export function Navbar() {
                     <Link
                       href={link.href}
                       className={cn(
-                        "relative px-2 py-2 text-sm font-bold uppercase tracking-[0.12em] no-underline transition-colors duration-200",
-                        "after:absolute after:bottom-0 after:left-2 after:h-[2px] after:rounded-full after:transition-all after:duration-300",
-                        active
-                          ? "after:w-[calc(100%-16px)] after:bg-accent-light"
-                          : "after:w-0 after:bg-accent-light hover:after:w-[calc(100%-16px)]",
-                        scrolled
-                          ? active ? "text-accent-light" : "text-accent-green hover:text-accent-light"
-                          : "md:text-accent-light drop-shadow-sm"
+                        "relative px-3 py-2 text-sm font-medium tracking-wide no-underline transition-colors duration-200",
+                        "after:absolute after:bottom-0 after:left-3 after:h-[2px] after:rounded-full after:transition-all after:duration-300",
+                          active
+                            ? "after:w-[calc(100%-24px)] after:bg-emerald"
+                            : "after:w-0 after:bg-emerald hover:after:w-[calc(100%-24px)]",
+                          scrolled
+                            ? active ? "text-emerald" : "text-white/80 hover:text-white"
+                            : "text-white/90 hover:text-white drop-shadow-sm"
                       )}
                     >
                       {link.label}
@@ -144,7 +152,7 @@ export function Navbar() {
                   onClick={() => setSearchOpen(!searchOpen)}
                   className={cn(
                     "p-2 transition-colors",
-                    scrolled ? "text-accent-green hover:text-accent-light" : "md:text-accent-green md:hover:text-accent-light text-accent-green/70 hover:text-accent-light"
+                    scrolled ? "text-white/80 hover:text-emerald" : "text-white/90 hover:text-emerald"
                   )}
                   aria-label="Toggle search"
                 >
@@ -162,8 +170,8 @@ export function Navbar() {
                     className={cn(
                       "w-full h-9 pl-3 pr-8 text-sm rounded-lg border outline-none transition-colors",
                       scrolled
-                        ? "bg-bg-main border-accent-green/20 text-accent-green placeholder:text-accent-green/50 focus:border-accent-green/50"
-                        : "bg-accent-green/10 border-accent-green/20 text-accent-green placeholder:text-accent-green/50 focus:border-accent-green/50"
+                        ? "bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-emerald"
+                        : "bg-white/15 border-white/25 text-white placeholder:text-white/60 focus:border-emerald"
                     )}
                     autoFocus={searchOpen}
                   />
@@ -175,14 +183,14 @@ export function Navbar() {
                 onClick={() => setOpen(true)}
                 className={cn(
                   "relative p-2 transition-colors",
-                  scrolled ? "text-accent-green hover:text-accent-light" : "md:text-accent-green md:hover:text-accent-light text-accent-green hover:text-accent-light"
+                  scrolled ? "text-white/80 hover:text-emerald" : "text-white/90 hover:text-emerald"
                 )}
                 aria-label="Open cart"
               >
                 <CartIcon className="w-5 h-5" />
                     <span
                       className={cn(
-                        "absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] font-bold text-bg-main bg-accent-light rounded-full leading-none transition-transform duration-200",
+                        "absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] text-[10px] font-bold text-bg-main bg-emerald rounded-full leading-none transition-transform duration-200",
                       badgeBounce && "scale-125",
                       cartCount === 0 && "hidden",
                       !mounted && "hidden"
@@ -199,14 +207,14 @@ export function Navbar() {
       {/* Mobile menu — slide-in drawer */}
       <div
         className={cn(
-          "fixed inset-0 z-40 md:hidden transition-all duration-300",
+           "fixed inset-0 z-50 md:hidden transition-all duration-300",
           mobileOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
       >
         {/* Backdrop */}
         <div
           className={cn(
-            "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
+            "absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300",
             mobileOpen ? "opacity-100" : "opacity-0"
           )}
           onClick={() => setMobileOpen(false)}
@@ -215,15 +223,20 @@ export function Navbar() {
         {/* Drawer */}
         <div
           className={cn(
-            "absolute top-0 right-0 h-full w-72 max-w-[85vw] bg-bg-main shadow-2xl shadow-black/10 border-l border-black/5 transition-transform duration-300 ease-out",
+            "absolute top-0 right-0 h-full w-72 max-w-[85vw] pt-16 transition-transform duration-300 ease-out border-l border-white/10",
             mobileOpen ? "translate-x-0" : "translate-x-full"
           )}
+          style={{
+            backgroundImage: `linear-gradient(180deg, rgba(18,45,30,0.98), rgba(30,80,50,0.95)), url(${navbarBgImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
         >
-          <div className="flex items-center justify-between px-6 py-5 border-b border-black/5">
-            <span className="font-heading text-xl font-bold text-accent-green">Menu</span>
+          <div className="flex items-center justify-between px-6 pb-5 border-b border-white/10">
+            <span className="font-heading text-xl font-semibold italic text-white">Menu</span>
             <button
               onClick={() => setMobileOpen(false)}
-              className="p-1.5 text-accent-green hover:text-accent-green transition-colors"
+              className="p-1.5 text-white/80 hover:text-emerald transition-colors"
               aria-label="Close menu"
             >
               <CloseIcon className="w-5 h-5" />
@@ -246,8 +259,8 @@ export function Navbar() {
                   className={cn(
                     "block px-4 py-3 rounded-lg text-base font-medium no-underline transition-all duration-300",
                     active
-                      ? "bg-accent-green/10 text-accent-light"
-                      : "text-accent-green hover:bg-accent-green/10 hover:text-accent-light"
+                      ? "bg-emerald/15 text-emerald"
+                      : "text-white/70 hover:bg-white/5 hover:text-white"
                   )}
                   onClick={() => setMobileOpen(false)}
                   style={{

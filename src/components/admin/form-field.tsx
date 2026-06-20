@@ -1,6 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface FormFieldProps {
   label: string;
@@ -33,34 +43,28 @@ export default function FormField({
   hint,
   imagePreview,
 }: FormFieldProps) {
-  const baseInputClasses =
-    "w-full bg-bg-main border rounded-lg px-3 py-2.5 text-sm text-accent-green placeholder:text-accent-green/50 focus:outline-none focus:ring-2 focus:ring-accent-green/40 focus:border-accent-green transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
-
-  const errorClasses = error ? "border-danger focus:ring-danger/40 focus:border-danger" : "border-accent-green/15 hover:border-accent-green/30";
-
   const id = `field-${name}`;
 
   const renderInput = () => {
     switch (type) {
       case "select":
         return (
-          <select
-            id={id}
-            name={name}
+          <Select
             value={String(value)}
-            onChange={(e) => onChange(e.target.value)}
+            onValueChange={(v) => onChange(v)}
             disabled={disabled}
-            className={cn(baseInputClasses, errorClasses, "appearance-none cursor-pointer")}
           >
-            <option value="" disabled>
-              {placeholder || `Select ${label}`}
-            </option>
-            {options?.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className={cn(error && "border-destructive")}>
+              <SelectValue placeholder={placeholder || `Select ${label}`} />
+            </SelectTrigger>
+            <SelectContent>
+              {options?.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
 
       case "textarea":
@@ -73,33 +77,33 @@ export default function FormField({
             placeholder={placeholder}
             rows={rows}
             disabled={disabled}
-            className={cn(baseInputClasses, errorClasses, "resize-vertical min-h-[80px]")}
+            className={cn(
+              "flex min-h-[80px] w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 resize-y",
+              error && "border-destructive"
+            )}
           />
         );
 
       case "checkbox":
         return (
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <input
+          <div className="flex items-center gap-3">
+            <Checkbox
               id={id}
-              name={name}
-              type="checkbox"
               checked={Boolean(value)}
-              onChange={(e) => onChange(e.target.checked)}
+              onCheckedChange={(checked) => onChange(checked === true)}
               disabled={disabled}
-              className="w-4 h-4 rounded border-accent-green/20 bg-bg-main text-accent-green focus:ring-accent-green/40 focus:ring-2 transition-colors"
             />
-            <span className="text-sm text-accent-green group-hover:text-accent-light transition-colors">
+            <Label htmlFor={id} className="text-sm font-normal cursor-pointer">
               {label}
-            </span>
-          </label>
+            </Label>
+          </div>
         );
 
       case "url":
         return (
           <div className="space-y-2">
             <div className="relative">
-              <input
+              <Input
                 id={id}
                 name={name}
                 type="url"
@@ -107,16 +111,16 @@ export default function FormField({
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder || "https://"}
                 disabled={disabled}
-                className={cn(baseInputClasses, errorClasses, "pl-9")}
+                className={cn(error && "border-destructive", "pl-9")}
               />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-accent-green/50">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
                 </svg>
               </div>
             </div>
             {imagePreview && typeof value === "string" && value && (
-              <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-accent-green/10 bg-bg-main">
+              <div className="relative w-24 h-24 rounded-lg overflow-hidden border bg-muted">
                 <img
                   src={value}
                   alt="Preview"
@@ -135,11 +139,11 @@ export default function FormField({
         return (
           <div className="relative">
             {prefix && (
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-accent-green/50 text-sm font-medium pointer-events-none">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium pointer-events-none z-10">
                 {prefix}
               </div>
             )}
-            <input
+            <Input
               id={id}
               name={name}
               type={type}
@@ -149,7 +153,7 @@ export default function FormField({
               }
               placeholder={placeholder}
               disabled={disabled}
-              className={cn(baseInputClasses, errorClasses, prefix && "pl-10")}
+              className={cn(error && "border-destructive", prefix && "pl-10")}
             />
           </div>
         );
@@ -161,26 +165,21 @@ export default function FormField({
       <div className="space-y-1">
         {renderInput()}
         {hint && !error && (
-          <p className="text-xs text-accent-green/60">{hint}</p>
+          <p className="text-xs text-muted-foreground">{hint}</p>
         )}
-        {error && <p className="text-xs text-danger">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   }
 
   return (
     <div className="space-y-1.5">
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-accent-green"
-      >
-        {label}
-      </label>
+      <Label htmlFor={id}>{label}</Label>
       {renderInput()}
       {hint && !error && (
-        <p className="text-xs text-[--color-text-muted]">{hint}</p>
+        <p className="text-xs text-muted-foreground">{hint}</p>
       )}
-      {error && <p className="text-xs text-[--color-danger]">{error}</p>}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }

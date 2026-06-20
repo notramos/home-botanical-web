@@ -83,18 +83,16 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 z-40 h-full w-64 flex flex-col bg-bg-main border-r border-accent-green/10 transition-transform duration-300 -translate-x-full lg:translate-x-0"
+        "fixed top-0 left-0 z-40 h-full w-64 flex flex-col bg-background border-r border-border transition-transform duration-300 -translate-x-full lg:translate-x-0"
       )}
     >
       {/* Logo */}
-      <div className="relative px-6 pt-6 pb-4 border-b border-accent-green/10 overflow-hidden">
-        <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-accent-green/[3%]" />
-        <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-accent-green/[3%]" />
-        <Link href="/admin" className="relative z-10 block">
-          <h1 className="font-heading text-2xl font-semibold text-accent-green tracking-wide">
+      <div className="px-6 pt-6 pb-4 border-b border-border">
+        <Link href="/admin" className="block">
+          <h1 className="font-heading text-2xl font-semibold text-foreground tracking-wide">
             Home Botanical
           </h1>
-          <p className="text-xs text-accent-green/60 mt-0.5 font-medium tracking-widest uppercase">
+          <p className="text-xs text-muted-foreground mt-0.5 font-medium tracking-widest uppercase">
             Admin Console
           </p>
         </Link>
@@ -114,23 +112,23 @@ export default function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
                 isActive
-                  ? "bg-accent-green/10 text-accent-green"
-                  : "text-accent-green/60 hover:text-accent-green hover:bg-accent-green/[3%]"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
               <span
                 className={cn(
                   "transition-colors duration-200",
                   isActive
-                    ? "text-accent-green"
-                    : "text-accent-green/50 group-hover:text-accent-green/70"
+                    ? "text-accent-foreground"
+                    : "text-muted-foreground group-hover:text-foreground"
                 )}
               >
                 {item.icon}
               </span>
               <span>{item.name}</span>
               {isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-accent-light" />
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
               )}
             </Link>
           );
@@ -138,7 +136,7 @@ export default function Sidebar() {
 
         {/* Quick Access */}
         <div className="pt-6 pb-2">
-          <p className="px-3 text-xs font-semibold uppercase tracking-widest text-accent-green/40">
+          <p className="px-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
             Quick Access
           </p>
         </div>
@@ -146,25 +144,15 @@ export default function Sidebar() {
           <Link
             key={link.href}
             href={link.href}
-            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-accent-green/60 hover:text-accent-green hover:bg-accent-green/[3%] transition-all duration-200 group"
+            className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 group"
           >
             <span>{link.name}</span>
-            <span className="text-lg group-hover:translate-x-0.5 transition-transform text-accent-green/40 group-hover:text-accent-green">
+            <span className="text-lg group-hover:translate-x-0.5 transition-transform text-muted-foreground/60 group-hover:text-foreground">
               {link.icon}
             </span>
           </Link>
         ))}
       </nav>
-
-      {/* Leaf decoration */}
-      <div className="absolute bottom-20 right-0 pointer-events-none opacity-[0.03] text-accent-green">
-        <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor">
-          <path d="M50 10C50 10 20 30 20 55C20 75 35 90 50 90C65 90 80 75 80 55C80 30 50 10 50 10Z" />
-          <path d="M50 10L50 90" stroke="currentColor" strokeWidth="2" />
-          <path d="M25 40L75 40" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-          <path d="M20 55L80 55" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-        </svg>
-      </div>
     </aside>
   );
 }

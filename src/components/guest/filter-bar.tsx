@@ -37,7 +37,7 @@ export function FilterBar({
           placeholder="Search plants..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full h-10 pl-10 pr-4 rounded-lg border border-black/10 bg-bg-main text-sm text-text-light placeholder:text-text-muted/60 focus:outline-none focus:border-accent-green/50 focus:ring-1 focus:ring-accent-green/30 transition-colors"
+          className="w-full h-10 pl-10 pr-4 rounded-lg border border-black/10 bg-bg-main text-sm text-text-light placeholder:text-text-muted/60 focus:outline-none focus:border-forest/50 focus:ring-1 focus:ring-forest/30 transition-colors"
         />
       </div>
 
@@ -48,8 +48,8 @@ export function FilterBar({
           className={cn(
             "px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
             activeCategory === ""
-              ? "bg-accent-light text-bg-main"
-              : "bg-black/5 text-text-muted hover:text-accent-light hover:bg-accent-light/10"
+              ? "bg-emerald text-bg-main"
+              : "bg-black/5 text-text-muted hover:text-emerald hover:bg-emerald/10"
           )}
         >
           All Plants
@@ -61,8 +61,8 @@ export function FilterBar({
             className={cn(
               "px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
               activeCategory === cat.value
-                ? "bg-accent-light text-bg-main"
-                : "bg-black/5 text-text-muted hover:text-accent-light hover:bg-accent-light/10"
+                ? "bg-emerald text-bg-main"
+                : "bg-black/5 text-text-muted hover:text-emerald hover:bg-emerald/10"
             )}
           >
             {cat.label}
@@ -80,7 +80,7 @@ export function FilterBar({
         </div>
         <div className="relative h-1.5 rounded-full bg-black/10">
           <div
-            className="absolute h-full rounded-full bg-accent-light/40"
+            className="absolute h-full rounded-full bg-emerald/40"
             style={{
               left: `${(priceRange[0] / maxPrice) * 100}%`,
               width: `${((priceRange[1] - priceRange[0]) / maxPrice) * 100}%`,
@@ -95,7 +95,7 @@ export function FilterBar({
               const val = Number(e.target.value);
               onPriceChange([Math.min(val, priceRange[1] - 5), priceRange[1]]);
             }}
-            className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-light [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
+            className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
             style={{ zIndex: 3 }}
           />
           <input
@@ -107,7 +107,7 @@ export function FilterBar({
               const val = Number(e.target.value);
               onPriceChange([priceRange[0], Math.max(val, priceRange[0] + 5)]);
             }}
-            className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent-light [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
+            className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
             style={{ zIndex: 4 }}
           />
         </div>

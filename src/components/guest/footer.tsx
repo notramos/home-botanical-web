@@ -66,7 +66,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <LeafIcon className="w-6 h-6 text-accent-green" />
-              <span className="text-lg font-heading font-bold text-text-light tracking-wide">
+                    <span className="text-lg font-heading font-bold text-forest tracking-wide">
                 Home Botanical
               </span>
             </div>
@@ -79,7 +79,7 @@ export function Footer() {
                 <a
                   key={s.label}
                   href={s.href}
-                  className="flex items-center justify-center w-9 h-9 rounded-full bg-black/5 text-text-muted hover:bg-accent-light hover:text-bg-main transition-all duration-200"
+                  className="flex items-center justify-center w-9 h-9 rounded-full bg-black/5 text-text-muted hover:bg-emerald hover:text-bg-main transition-all duration-200"
                   aria-label={s.label}
                 >
                   <SocialIcon type={s.icon} />
@@ -113,7 +113,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-text-muted hover:text-accent-light transition-colors"
+                    className="text-sm text-text-muted hover:text-emerald transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -132,7 +132,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-text-muted hover:text-accent-light transition-colors"
+                    className="text-sm text-text-muted hover:text-emerald transition-colors"
                   >
                     {link.label}
                   </Link>

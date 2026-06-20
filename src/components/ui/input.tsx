@@ -1,56 +1,19 @@
-"use client";
+import * as React from "react"
 
-import { cn } from "@/lib/utils";
-import { InputHTMLAttributes, forwardRef } from "react";
+import { cn } from "@/lib/utils"
 
-interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "prefix"> {
-  label?: string;
-  error?: string;
-  prefix?: React.ReactNode;
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  return (
+    <input
+      type={type}
+      data-slot="input"
+      className={cn(
+        "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, prefix, id, ...props }, ref) => {
-    const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
-
-    return (
-      <div className="w-full space-y-1.5">
-        {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-muted-foreground"
-          >
-            {label}
-          </label>
-        )}
-        <div className="relative">
-          {prefix && (
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-              {prefix}
-            </div>
-          )}
-          <input
-            ref={ref}
-            id={inputId}
-            className={cn(
-              "w-full rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground",
-              "placeholder:text-muted-foreground/60",
-              "transition-colors duration-200",
-              "focus:outline-none focus:border-ring focus:ring-3 focus:ring-ring/30",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              error && "border-destructive/50 focus:border-destructive focus:ring-destructive/30",
-              prefix && "pl-10",
-              className
-            )}
-            {...props}
-          />
-        </div>
-        {error && (
-          <p className="text-xs text-destructive/90">{error}</p>
-        )}
-      </div>
-    );
-  }
-);
-
-Input.displayName = "Input";
+export { Input }

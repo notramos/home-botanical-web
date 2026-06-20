@@ -50,7 +50,7 @@ export function Pagination({
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:text-accent-green hover:bg-accent-green/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:text-emerald hover:bg-emerald/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         aria-label="Previous page"
       >
         <ChevronLeftIcon className="w-4 h-4" />
@@ -71,8 +71,8 @@ export function Pagination({
             className={cn(
               "flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors",
               p === page
-                ? "bg-accent-light text-bg-main"
-                : "text-text-muted hover:text-accent-green hover:bg-accent-green/5"
+                ? "bg-emerald text-bg-main"
+                : "text-text-muted hover:text-emerald hover:bg-emerald/5"
             )}
             aria-current={p === page ? "page" : undefined}
           >
@@ -84,7 +84,7 @@ export function Pagination({
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:text-accent-green hover:bg-accent-green/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:text-emerald hover:bg-emerald/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         aria-label="Next page"
       >
         <ChevronRightIcon className="w-4 h-4" />

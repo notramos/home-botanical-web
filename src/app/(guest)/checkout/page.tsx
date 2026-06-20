@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart-store";
 import { createOrder } from "@/actions/admin";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
-import { formatPrice, cn } from "@/lib/utils";
+import { formatPrice, cn, getProductImageUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LeafIcon, ChevronLeftIcon } from "@/components/shared/icons";
 import Link from "next/link";
-import Image from "next/image";
 import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
@@ -94,7 +95,7 @@ export default function CheckoutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-accent-light transition-colors mb-3"
+            className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-emerald transition-colors mb-3"
           >
             <ChevronLeftIcon className="w-4 h-4" />
             Back to Catalog
@@ -132,35 +133,47 @@ export default function CheckoutPage() {
                       <CardTitle>Contact Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <Input
-                        label="Full Name"
-                        placeholder="John Doe"
-                        value={formData.customerName}
-                        onChange={(e) =>
-                          handleChange("customerName", e.target.value)
-                        }
-                        error={errors.customerName}
-                      />
-                      <Input
-                        label="Email Address"
-                        type="email"
-                        placeholder="john@example.com"
-                        value={formData.customerEmail}
-                        onChange={(e) =>
-                          handleChange("customerEmail", e.target.value)
-                        }
-                        error={errors.customerEmail}
-                      />
-                      <Input
-                        label="Phone Number (optional)"
-                        type="tel"
-                        placeholder="+1 (555) 123-4567"
-                        value={formData.customerPhone || ""}
-                        onChange={(e) =>
-                          handleChange("customerPhone", e.target.value)
-                        }
-                        error={errors.customerPhone}
-                      />
+                      <div className="space-y-1.5">
+                        <Label htmlFor="customerName">Full Name</Label>
+                        <Input
+                          id="customerName"
+                          placeholder="John Doe"
+                          value={formData.customerName}
+                          onChange={(e) =>
+                            handleChange("customerName", e.target.value)
+                          }
+                          className={errors.customerName ? "border-destructive" : ""}
+                        />
+                        {errors.customerName && <p className="text-xs text-destructive">{errors.customerName}</p>}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="customerEmail">Email Address</Label>
+                        <Input
+                          id="customerEmail"
+                          type="email"
+                          placeholder="john@example.com"
+                          value={formData.customerEmail}
+                          onChange={(e) =>
+                            handleChange("customerEmail", e.target.value)
+                          }
+                          className={errors.customerEmail ? "border-destructive" : ""}
+                        />
+                        {errors.customerEmail && <p className="text-xs text-destructive">{errors.customerEmail}</p>}
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="customerPhone">Phone Number (optional)</Label>
+                        <Input
+                          id="customerPhone"
+                          type="tel"
+                          placeholder="+1 (555) 123-4567"
+                          value={formData.customerPhone || ""}
+                          onChange={(e) =>
+                            handleChange("customerPhone", e.target.value)
+                          }
+                          className={errors.customerPhone ? "border-destructive" : ""}
+                        />
+                        {errors.customerPhone && <p className="text-xs text-destructive">{errors.customerPhone}</p>}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -169,15 +182,19 @@ export default function CheckoutPage() {
                       <CardTitle>Shipping Address</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <Input
-                        label="Address"
-                        placeholder="123 Plant Street, Apt 4B"
-                        value={formData.shippingAddress}
-                        onChange={(e) =>
-                          handleChange("shippingAddress", e.target.value)
-                        }
-                        error={errors.shippingAddress}
-                      />
+                      <div className="space-y-1.5">
+                        <Label htmlFor="shippingAddress">Address</Label>
+                        <Input
+                          id="shippingAddress"
+                          placeholder="123 Plant Street, Apt 4B"
+                          value={formData.shippingAddress}
+                          onChange={(e) =>
+                            handleChange("shippingAddress", e.target.value)
+                          }
+                          className={errors.shippingAddress ? "border-destructive" : ""}
+                        />
+                        {errors.shippingAddress && <p className="text-xs text-destructive">{errors.shippingAddress}</p>}
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -207,21 +224,16 @@ export default function CheckoutPage() {
                         key={item.id}
                         className="flex gap-3 p-3 rounded-xl bg-black/[0.02] border border-black/5"
                       >
-                        <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-bg-main">
-                          {item.image ? (
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                              sizes="64px"
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-text-muted">
-                              <LeafIcon className="w-5 h-5" />
-                            </div>
-                          )}
-                        </div>
+                         <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                           <Image
+                             src={getProductImageUrl(item.id)}
+                             alt={item.name}
+                             fill
+                             className="object-cover"
+                             sizes="64px"
+                           />
+                           <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
+                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-text-light truncate">
                             {item.name}
@@ -229,7 +241,7 @@ export default function CheckoutPage() {
                           <p className="text-xs text-text-muted">
                             Qty: {item.qty}
                           </p>
-                          <p className="text-sm text-accent-light font-medium mt-0.5">
+                          <p className="text-sm text-emerald font-medium mt-0.5">
                             {formatPrice(item.price * item.qty)}
                           </p>
                         </div>
@@ -247,7 +259,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-text-muted">Shipping</span>
-                      <span className="text-accent-light">Free</span>
+                      <span className="text-emerald">Free</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-text-muted">Tax</span>
@@ -259,7 +271,7 @@ export default function CheckoutPage() {
                       <span className="text-base font-heading font-semibold text-text-light">
                         Total
                       </span>
-                      <span className="text-xl font-heading font-bold text-accent-light">
+                      <span className="text-xl font-heading font-bold text-emerald">
                         {formatPrice(cartTotal)}
                       </span>
                     </div>

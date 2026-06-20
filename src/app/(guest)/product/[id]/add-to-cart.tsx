@@ -74,7 +74,7 @@ export function AddToCart({ product }: AddToCartProps) {
           "w-full h-12 rounded-lg font-medium text-sm transition-all duration-200",
           added
             ? "bg-success text-white"
-            : "bg-accent-green text-bg-main hover:bg-accent-light shadow-lg shadow-accent-green/20"
+            : "bg-forest text-bg-main hover:bg-emerald shadow-lg shadow-forest/20"
         )}
       >
         {added ? "Added to Cart!" : "Add to Cart"}

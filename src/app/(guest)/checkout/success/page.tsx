@@ -13,9 +13,9 @@ export default async function CheckoutSuccessPage({
     <section className="flex-1 flex items-center justify-center py-24 px-4">
       <div className="max-w-md w-full text-center">
         {/* Checkmark */}
-        <div className="w-20 h-20 rounded-full bg-accent-green/20 flex items-center justify-center mx-auto mb-6">
+        <div className="w-20 h-20 rounded-full bg-forest/20 flex items-center justify-center mx-auto mb-6">
           <svg
-            className="w-10 h-10 text-accent-light"
+            className="w-10 h-10 text-emerald"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -32,7 +32,7 @@ export default async function CheckoutSuccessPage({
         </h1>
         <p className="text-text-muted text-sm mb-6 leading-relaxed">
           Thank you for your purchase. You will receive an order confirmation
-          email shortly with your order details.
+          via email and WhatsApp shortly with your order details.
         </p>
 
         {orderNumber && (
@@ -40,7 +40,7 @@ export default async function CheckoutSuccessPage({
             <p className="text-xs text-text-muted uppercase tracking-wider mb-1">
               Order Number
             </p>
-            <p className="text-lg font-heading font-semibold text-accent-light">
+            <p className="text-lg font-heading font-semibold text-emerald">
               {orderNumber}
             </p>
           </div>
@@ -48,7 +48,7 @@ export default async function CheckoutSuccessPage({
 
         <Link
           href="/catalog"
-          className="inline-flex h-12 px-8 items-center justify-center rounded-lg bg-accent-light text-bg-main font-medium text-sm hover:bg-accent-green/90 transition-all duration-200 shadow-lg shadow-accent-light/20"
+          className="inline-flex h-12 px-8 items-center justify-center rounded-lg bg-emerald text-bg-main font-medium text-sm hover:bg-forest/90 transition-all duration-200 shadow-lg shadow-emerald/20"
         >
           Continue Shopping
         </Link>

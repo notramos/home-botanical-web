@@ -4,9 +4,8 @@ import { formatPrice, cn } from "@/lib/utils";
 import { StarIcon, ChevronLeftIcon } from "@/components/shared/icons";
 import { Badge } from "@/components/ui/badge";
 import { AddToCart } from "./add-to-cart";
+import { ProductGallery } from "./product-gallery";
 import Link from "next/link";
-import { FALLBACK_IMAGE } from "@/lib/constants";
-import Image from "next/image";
 
 export default async function ProductDetailPage({
   params,
@@ -32,7 +31,7 @@ export default async function ProductDetailPage({
   const price = Number(product.price);
   const originalPrice = product.originalPrice ? Number(product.originalPrice) : null;
 
-  const hasDiscount = originalPrice && originalPrice > price;
+  const hasDiscount = !!(originalPrice && originalPrice > price);
   const discountPercent = hasDiscount
     ? Math.round(((originalPrice! - price) / originalPrice!) * 100)
     : 0;
@@ -43,13 +42,13 @@ export default async function ProductDetailPage({
       <section className="pt-24 pb-4 md:pt-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-2 text-sm text-text-muted mb-2">
-            <Link href="/" className="hover:text-accent-light transition-colors">
+            <Link href="/" className="hover:text-emerald transition-colors">
               Home
             </Link>
             <span>/</span>
             <Link
               href="/catalog"
-              className="hover:text-accent-light transition-colors"
+              className="hover:text-emerald transition-colors"
             >
               Catalog
             </Link>
@@ -58,7 +57,7 @@ export default async function ProductDetailPage({
                 <span>/</span>
                 <Link
                   href={`/catalog?category=${product.category}`}
-                  className="hover:text-accent-light transition-colors"
+                  className="hover:text-emerald transition-colors"
                 >
                   {product.category.replace(/_/g, " ")}
                 </Link>
@@ -70,7 +69,7 @@ export default async function ProductDetailPage({
 
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-accent-light transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-emerald transition-colors"
           >
             <ChevronLeftIcon className="w-4 h-4" />
             Back to Catalog
@@ -84,33 +83,12 @@ export default async function ProductDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-bg-soft border border-black/5">
-                {product.image ? (
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    priority
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <Image
-                      src={FALLBACK_IMAGE}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
-                  </div>
-                )}
-                {hasDiscount && (
-                  <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-danger text-white text-xs font-bold">
-                    -{discountPercent}%
-                  </div>
-                )}
-              </div>
+              <ProductGallery
+                productId={product.id}
+                name={product.name}
+                hasDiscount={hasDiscount}
+                discountPercent={discountPercent}
+              />
             </div>
 
             {/* Product Info */}
@@ -141,7 +119,7 @@ export default async function ProductDetailPage({
 
               {/* Price */}
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl md:text-4xl font-heading font-bold text-accent-light">
+                <span className="text-3xl md:text-4xl font-heading font-bold text-emerald">
                   {formatPrice(price)}
                 </span>
                 {hasDiscount && (
@@ -168,7 +146,7 @@ export default async function ProductDetailPage({
                   </h3>
                   {product.lightRequirement && (
                     <div className="flex items-start gap-3">
-                      <span className="text-accent-green text-lg mt-0.5">☀</span>
+                      <span className="text-emerald text-lg mt-0.5">☀</span>
                       <div>
                         <p className="text-xs text-text-muted uppercase tracking-wider">
                           Light
@@ -181,7 +159,7 @@ export default async function ProductDetailPage({
                   )}
                   {product.waterRequirement && (
                     <div className="flex items-start gap-3">
-                      <span className="text-accent-green text-lg mt-0.5">💧</span>
+                      <span className="text-emerald text-lg mt-0.5">💧</span>
                       <div>
                         <p className="text-xs text-text-muted uppercase tracking-wider">
                           Water
@@ -194,7 +172,7 @@ export default async function ProductDetailPage({
                   )}
                   {product.careInstructions && (
                     <div className="flex items-start gap-3">
-                      <span className="text-accent-green text-lg mt-0.5">🌱</span>
+                      <span className="text-emerald text-lg mt-0.5">🌱</span>
                       <div>
                         <p className="text-xs text-text-muted uppercase tracking-wider">
                           Care

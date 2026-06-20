@@ -2,11 +2,11 @@ import { prisma } from "@/lib/db";
 import { HeroCarousel } from "@/components/guest/hero-carousel";
 import { CategoryGrid } from "@/components/guest/category-grid";
 import { ProductCard } from "@/components/guest/product-card";
+import Image from "next/image";
 import { FEATURED_PRODUCTS, VALUES, CATEGORIES } from "@/lib/constants";
 import { LeafIcon, StarIcon } from "@/components/shared/icons";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, getBackgroundImageUrl, getProductImageUrl } from "@/lib/utils";
 import Link from "next/link";
-import Image from "next/image";
 
 async function getFeaturedProducts() {
   try {
@@ -71,7 +71,7 @@ const reviews = [
     avatar: "S",
     text: "Beautiful selection of low-light plants for my apartment. Customer service was incredibly helpful in choosing the right plants.",
     image:
-      "https://images.unsplash.com/photo-1520412099551-62b6faf7e1b8?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1774053054226-ecabae8bbde6?auto=format&fit=crop&w=400&q=80",
   },
 ];
 
@@ -106,7 +106,7 @@ const instagramPhotos = [
     alt: "Ceramic pots display",
   },
   {
-    src: "https://images.unsplash.com/photo-1463320898484-8c9f5b4b85c0?auto=format&fit=crop&w=600&q=80",
+    src: "https://images.unsplash.com/photo-1778079840490-af5643183fcd?auto=format&fit=crop&w=600&q=80",
     alt: "Indoor garden setup",
   },
   {
@@ -153,20 +153,15 @@ export default async function HomePage() {
     <>
       <HeroCarousel />
 
-      {/* Banner CTA — full width with Unsplash bg */}
+      {/* Banner CTA — full width with botanical gradient */}
       <section className="relative py-20 md:py-28 overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80"
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </div>
-        <div className="absolute inset-0 " />
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${getBackgroundImageUrl(2)})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-forest/40 to-emerald/25" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <LeafIcon className="w-8 h-8 text-accent-light/80 mx-auto mb-4" />
+          <LeafIcon className="w-8 h-8 text-emerald/80 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-bg-main mb-4">
             Not sure which plant is right for you?
           </h2>
@@ -175,15 +170,15 @@ export default async function HomePage() {
             green companion for your space and lifestyle.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href="/catalog"
-              className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-accent-green text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-accent-light hover:-translate-y-0.5"
+              <Link
+                href="/catalog"
+                className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-forest text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-emerald hover:-translate-y-0.5"
             >
               Browse Collection
             </Link>
             <Link
               href="/plant-care"
-              className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-transparent text-bg-main text-sm tracking-wider no-underline border border-bg-main/40 transition-all duration-300 hover:bg-accent-light/10 hover:border-accent-light"
+              className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-transparent text-bg-main text-sm tracking-wider no-underline border border-bg-main/40 transition-all duration-300 hover:bg-emerald/10 hover:border-emerald"
             >
               Plant Care Guide
             </Link>
@@ -206,10 +201,10 @@ export default async function HomePage() {
             {values.map((value, i) => (
               <div
                 key={i}
-                className="group rounded-xl border border-accent-green/15 bg-bg-soft/50 p-8 text-center transition-all duration-300 hover:border-accent-green/30 hover:bg-bg-soft hover:-translate-y-1"
+                className="group rounded-xl border border-forest/15 bg-bg-soft/50 p-8 text-center transition-all duration-300 hover:border-forest/30 hover:bg-bg-soft hover:-translate-y-1"
               >
-                <div className="w-14 h-14 rounded-full bg-accent-light/15 flex items-center justify-center mx-auto mb-5 group-hover:bg-accent-light/25 transition-colors">
-                  <LeafIcon className="w-6 h-6 text-accent-light" />
+                <div className="w-14 h-14 rounded-full bg-emerald/15 flex items-center justify-center mx-auto mb-5 group-hover:bg-emerald/25 transition-colors">
+                  <LeafIcon className="w-6 h-6 text-emerald" />
                 </div>
                 <h3 className="text-xl md:text-2xl font-heading font-semibold text-text-light mb-3">
                   {value.title}
@@ -223,17 +218,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories Grid — full Unsplash bg */}
+      {/* Categories Grid — full botanical gradient */}
       <section className="relative overflow-hidden" id="categories">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80"
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/25 to-moss/20" />
         <div className="relative z-10">
           <CategoryGrid categories={categories} title="Shop by Category" />
         </div>
@@ -254,7 +241,7 @@ export default async function HomePage() {
             {plantCareTips.map((tip, i) => (
               <div
                 key={i}
-                className="group rounded-xl overflow-hidden border border-accent-light/15 bg-bg-soft/50 transition-all duration-300 hover:border-accent-light/30 hover:-translate-y-1"
+                className="group rounded-xl overflow-hidden border border-emerald/15 bg-bg-soft/50 transition-all duration-300 hover:border-emerald/30 hover:-translate-y-1"
               >
                 <div className="relative h-48 overflow-hidden">
                   <Image
@@ -264,6 +251,7 @@ export default async function HomePage() {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-lg font-heading font-semibold text-text-light mb-2">
@@ -279,21 +267,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products — full Unsplash bg */}
+      {/* Featured Products — full botanical gradient */}
       <section className="relative overflow-hidden" id="best-sellers">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80"
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-forest/25 to-emerald/15" />
         <div className="relative z-10 py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-heading font-semibold text-accent-green mb-3">
+              <h2 className="text-3xl md:text-5xl font-heading font-semibold text-forest mb-3">
                 Aussie Favourites
               </h2>
               <p className="text-accent-green/80 text-base max-w-xl mx-auto">
@@ -309,7 +289,7 @@ export default async function HomePage() {
             <div className="mt-12 text-center">
               <Link
                 href="/catalog"
-                className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-accent-green text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-accent-light hover:-translate-y-0.5"
+              className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-forest text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-emerald hover:-translate-y-0.5"
               >
                 View All Plants
               </Link>
@@ -333,17 +313,17 @@ export default async function HomePage() {
             {reviews.map((review, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-accent-green/10 bg-bg-soft/30 p-6 transition-all duration-300 hover:border-accent-green/25 hover:-translate-y-1"
+                className="rounded-xl border border-forest/10 bg-bg-soft/30 p-6 transition-all duration-300 hover:border-forest/25 hover:-translate-y-1"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-accent-green/15 flex items-center justify-center text-accent-green font-heading font-bold text-lg flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-forest/15 flex items-center justify-center text-forest font-heading font-bold text-lg flex-shrink-0">
                     {review.avatar}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-text-light">
                       {review.name}
                     </p>
-                    <div className="flex text-accent-light text-xs tracking-[2px] mt-0.5">
+                    <div className="flex text-accent-gold text-xs tracking-[2px] mt-0.5">
                       {"★".repeat(5)}
                     </div>
                   </div>
@@ -359,6 +339,7 @@ export default async function HomePage() {
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
                 </div>
               </div>
             ))}
@@ -366,26 +347,22 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Instagram Feed — full Unsplash bg */}
+      {/* Instagram Feed — full botanical gradient */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80"
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </div>
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${getBackgroundImageUrl(3)})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald/30 to-forest/25" />
         <div className="relative z-10 py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-heading font-semibold text-accent-green mb-3">
+              <h2 className="text-3xl md:text-4xl font-heading font-semibold text-white mb-3">
                 Follow Us
               </h2>
-              <p className="text-accent-green/80 text-base max-w-xl mx-auto">
+              <p className="text-white/80 text-base max-w-xl mx-auto">
                 Tag{" "}
-                <span className="text-accent-green font-medium">
+                <span className="text-emerald font-medium">
                   @homebotanical
                 </span>{" "}
                 for a chance to be featured.
@@ -407,7 +384,8 @@ export default async function HomePage() {
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-accent-light/0 group-hover:bg-accent-light/20 transition-colors duration-300 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-emerald/0 group-hover:bg-emerald/20 transition-colors duration-300 flex items-center justify-center">
                     <svg
                       className="w-8 h-8 text-bg-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       viewBox="0 0 24 24"

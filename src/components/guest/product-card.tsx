@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice, getProductImageUrl } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { HeartIcon, StarIcon } from "@/components/shared/icons";
 import { useState } from "react";
@@ -55,20 +54,23 @@ export function ProductCard({ product, className }: ProductCardProps) {
         href={`/product/${product.id}`}
         className="block relative aspect-[4/3] overflow-hidden"
       >
-        {!imgError && product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className={cn(
-              "object-cover transition-transform duration-500",
-              isHovered && "scale-110",
-            )}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            onError={() => setImgError(true)}
-          />
+        {!imgError ? (
+          <>
+            <Image
+              src={getProductImageUrl(product.id)}
+              alt={product.name}
+              fill
+              className={cn(
+                "object-cover transition-transform duration-500",
+                isHovered && "scale-110",
+              )}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              onError={() => setImgError(true)}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
+          </>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-bg-main">
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-emerald/10 to-sage/15">
             <svg
               className="w-12 h-12 text-text-muted/30"
               fill="none"
@@ -101,7 +103,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         {/* Rating badge */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 rounded-full bg-black/30 backdrop-blur-md">
-          <StarIcon className="w-3 h-3 text-accent-light fill-current" />
+          <StarIcon className="w-3 h-3 text-accent-gold fill-current" />
           <span className="text-[11px] font-medium text-text-light">
             {displayRating}
           </span>
@@ -123,13 +125,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Info */}
       <div className="p-4 space-y-2">
         <Link href={`/product/${product.id}`}>
-          <h3 className="text-sm font-medium text-text-light group-hover:text-accent-light transition-colors line-clamp-1">
+          <h3 className="text-sm font-medium text-text-light group-hover:text-emerald transition-colors line-clamp-1">
             {product.name}
           </h3>
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="text-base font-heading font-semibold text-accent-light">
+          <span className="text-base font-heading font-semibold text-emerald">
             {formatPrice(product.price)}
           </span>
           {hasDiscount && (
@@ -150,7 +152,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               category: product.category,
             })
           }
-          className="w-full h-9 rounded-lg bg-accent-green/10 border border-accent-green/20 text-accent-green text-sm font-medium hover:bg-accent-light hover:text-bg-main transition-all duration-200"
+          className="w-full h-9 rounded-lg bg-forest/10 border border-forest/20 text-forest text-sm font-medium hover:bg-emerald hover:text-bg-main transition-all duration-200"
         >
           Add to Cart
         </button>

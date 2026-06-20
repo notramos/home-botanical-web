@@ -1,5 +1,6 @@
 import { getProducts } from "@/actions";
 import { CatalogContent } from "./catalog-content";
+import { getBackgroundImageUrl } from "@/lib/utils";
 
 export default async function CatalogPage({
   searchParams,
@@ -25,31 +26,29 @@ export default async function CatalogPage({
       <section className="relative pt-24 pb-12 md:pt-24 md:pb-16 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url("https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80")',
-          }}
+          style={{ backgroundImage: `url(${getBackgroundImageUrl(1)})` }}
         />
-        <div className="absolute inset-0 " />
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-forest/40 to-emerald/25"
+        />
 
         <div
-          className="absolute right-[15%] top-[15%] w-24 h-24 rounded-full border border-accent-green/20"
-          style={{ animation: "float 6s ease-in-out infinite" }}
-        />
-        <div
-          className="absolute left-[10%] bottom-[20%] w-14 h-14 rounded-full bg-accent-green/5"
-          style={{ animation: "float-slow 8s ease-in-out infinite" }}
-        />
-        <div
-          className="absolute right-[10%] bottom-[30%] w-10 h-10 rounded-full border border-accent-green/15"
+          className="absolute left-[5%] top-[55%] w-16 h-16 rounded-full border border-forest/25"
           style={{ animation: "float 7s ease-in-out infinite 2s" }}
+        />
+        <div
+          className="absolute right-[20%] bottom-[25%] w-12 h-12 rounded-full bg-forest/10"
+          style={{ animation: "float-slow 9s ease-in-out infinite" }}
         />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-block px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-widest bg-emerald/20 text-emerald/90 backdrop-blur-sm mb-4">
+            Explore
+          </span>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-heading font-bold text-white mb-4">
             Our Plant Collection
           </h1>
-          <p className="text-white text-base md:text-lg max-w-xl mx-auto">
+          <p className="text-white/85 text-base md:text-lg max-w-xl mx-auto">
             Discover the perfect green companion for your home. From
             low-maintenance beauties to statement-making showstoppers.
           </p>
@@ -61,17 +60,23 @@ export default async function CatalogPage({
             className="w-full h-full"
             preserveAspectRatio="none"
           >
+            <defs>
+              <linearGradient id="waveGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--color-emerald)" stopOpacity="0.08" />
+                <stop offset="100%" stopColor="var(--color-bg-main)" stopOpacity="1" />
+              </linearGradient>
+            </defs>
             <path
               d="M0,35 C240,95 720,-5 1440,50 L1440,120 L0,120 Z"
-              fill="var(--color-bg-main, #f5f2eb)"
+              fill="url(#waveGrad)"
             />
           </svg>
         </div>
       </section>
 
       <section className="relative pb-20 overflow-hidden">
-        <div className="absolute -left-16 top-20 w-56 h-56 rounded-full bg-accent-green/[1.5%] pointer-events-none" />
-        <div className="absolute -right-10 bottom-10 w-36 h-36 rounded-full border border-accent-green/10 pointer-events-none" />
+        <div className="absolute -left-16 top-20 w-56 h-56 rounded-full bg-forest/[1.5%] pointer-events-none" />
+        <div className="absolute -right-10 bottom-10 w-36 h-36 rounded-full border border-forest/10 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <CatalogContent
             key={`${category}-${search}-${price}-${page}`}
