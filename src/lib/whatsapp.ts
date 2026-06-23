@@ -1,21 +1,68 @@
-const fonnteApiKey = process.env.FONNTE_API_KEY;
+import {
+  makeWASocket,
+  useMultiFileAuthState,
+  DisconnectReason,
+} from "@whiskeysockets/baileys";
+
+let sock: ReturnType<typeof makeWASocket> | null = null;
+let connected = false;
+
 const adminPhone = process.env.ADMIN_PHONE || "";
 
-const FONNTE_URL = "https://api.fonnte.com/send";
+async function initWA() {
+  const { state, saveCreds } = await useMultiFileAuthState("wa_session");
+
+  sock = makeWASocket({ auth: state });
+
+  sock.ev.on("creds.update", saveCreds);
+
+  if (!sock.authState.creds?.registered) {
+    const phone = adminPhone.replace(/[^0-9]/g, "");
+    if (phone) {
+      setTimeout(async () => {
+        try {
+          const code = await sock!.requestPairingCode(phone);
+          console.log("\n═══════════════════════════════════════════");
+          console.log("  🔑 WhatsApp Pairing Code:");
+          console.log(`  ${code}`);
+          console.log("═══════════════════════════════════════════");
+          console.log("  Buka WhatsApp > Settings > Linked Devices");
+          console.log("  > Link a Device > masukkan kode di atas\n");
+        } catch (err) {
+          console.error("Gagal generate pairing code:", err);
+        }
+      }, 2000);
+    }
+  }
+
+  sock.ev.on("connection.update", ({ connection, lastDisconnect }) => {
+    if (connection === "open") {
+      connected = true;
+      console.log("✅ WhatsApp terhubung!");
+    } else if (connection === "close") {
+      connected = false;
+      const shouldReconnect =
+        (lastDisconnect?.error as any)?.output?.statusCode !==
+        DisconnectReason.loggedOut;
+      if (shouldReconnect) initWA();
+    }
+  });
+}
+
+let initPromise: Promise<void> | null = null;
+
+function ensureConnected() {
+  if (!initPromise) {
+    initPromise = initWA().catch(() => {
+      initPromise = null;
+    });
+  }
+}
 
 function formatPrice(price: number | string): string {
   const num = typeof price === "string" ? parseFloat(price) : price;
   return `Rp ${num.toLocaleString("id-ID")}`;
 }
-
-const statusLabels: Record<string, string> = {
-  pending: "Menunggu Konfirmasi",
-  processing: "Diproses",
-  shipped: "Dikirim",
-  delivered: "Selesai",
-  cancelled: "Dibatalkan",
-  refunded: "Dikembalikan",
-};
 
 interface OrderData {
   orderNumber: string;
@@ -26,48 +73,22 @@ interface OrderData {
 }
 
 async function sendWA(target: string, message: string): Promise<void> {
-  if (!fonnteApiKey || !target) return;
-
+  if (!sock || !connected) {
+    console.warn("WhatsApp belum terhubung, pesan tidak terkirim");
+    return;
+  }
   try {
-    const formData = new FormData();
-    formData.append("target", target);
-    formData.append("message", message);
-
-    const res = await fetch(FONNTE_URL, {
-      method: "POST",
-      headers: {
-        Authorization: fonnteApiKey,
-      },
-      body: formData,
-    });
-
-    const result = await res.json();
-    if (!result.status) {
-      console.error("Fonnte error:", result);
-    }
+    const jid = target.includes("@s.whatsapp.net")
+      ? target
+      : `${target}@s.whatsapp.net`;
+    await sock.sendMessage(jid, { text: message });
   } catch (error) {
     console.error("Gagal mengirim WhatsApp:", error);
   }
 }
 
-export async function sendOrderConfirmation(order: OrderData) {
-  if (!order.customerPhone) return;
-
-  const message = `🌿 *Home Botanical*
-Hai ${order.customerName},
-
-Pesanan Anda telah kami terima! ✅
-
-*No. Pesanan:* ${order.orderNumber}
-*Total:* ${formatPrice(order.total)}
-*Status:* ${statusLabels[order.status] || order.status}
-
-Kami akan mengirimkan update status pesanan melalui WhatsApp. Terima kasih telah berbelanja di Home Botanical! 🌱`;
-
-  await sendWA(order.customerPhone, message);
-}
-
 export async function sendAdminNotification(order: OrderData) {
+  ensureConnected();
   if (!adminPhone) return;
 
   const message = `🔔 *PESANAN BARU* 🔔
@@ -80,21 +101,4 @@ ${order.customerPhone ? `*Telepon:* ${order.customerPhone}` : ""}
 Silakan proses pesanan ini di dashboard admin.`;
 
   await sendWA(adminPhone, message);
-}
-
-export async function sendOrderStatusUpdate(order: OrderData) {
-  if (!order.customerPhone) return;
-
-  const message = `🌿 *Home Botanical*
-Hai ${order.customerName},
-
-Status pesanan Anda telah diperbarui! 📦
-
-*No. Pesanan:* ${order.orderNumber}
-*Status:* ${statusLabels[order.status] || order.status}
-*Total:* ${formatPrice(order.total)}
-
-Terima kasih telah berbelanja di Home Botanical! 🌱`;
-
-  await sendWA(order.customerPhone, message);
 }

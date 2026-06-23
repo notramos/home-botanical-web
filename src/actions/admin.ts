@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { productSchema, orderSchema } from "@/lib/validations";
 import { slugify, generateOrderNumber } from "@/lib/utils";
 import { sendOrderConfirmation, sendAdminNotification, sendOrderStatusUpdate } from "@/lib/email";
-import { sendOrderConfirmation as sendWAOrderConfirmation, sendAdminNotification as sendWAAdminNotification, sendOrderStatusUpdate as sendWAOrderStatusUpdate } from "@/lib/whatsapp";
+import { sendAdminNotification as sendWAAdminNotification } from "@/lib/whatsapp";
 import { z } from "zod";
 
 function serialize<T>(data: T): T {
@@ -249,7 +249,6 @@ export async function createOrder(data: z.infer<typeof orderSchema> & { items: {
   await Promise.allSettled([
     sendOrderConfirmation(orderData),
     sendAdminNotification(orderData),
-    sendWAOrderConfirmation(orderData),
     sendWAAdminNotification(orderData),
   ]);
 
@@ -360,30 +359,21 @@ export async function updateOrderStatus(id: number, status: string) {
     include: { items: true },
   });
   if (updatedOrder) {
-    await Promise.allSettled([
-      sendOrderStatusUpdate({
-        orderNumber: updatedOrder.orderNumber,
-        customerName: updatedOrder.customerName,
-        customerEmail: updatedOrder.customerEmail,
-        customerPhone: updatedOrder.customerPhone,
-        shippingAddress: updatedOrder.shippingAddress,
-        total: Number(updatedOrder.total),
-        status: updatedOrder.status,
-        items: updatedOrder.items.map((i) => ({
-          productName: i.productName,
-          quantity: i.quantity,
-          price: Number(i.price),
-          subtotal: Number(i.subtotal),
-        })),
-      }),
-      sendWAOrderStatusUpdate({
-        orderNumber: updatedOrder.orderNumber,
-        customerName: updatedOrder.customerName,
-        customerPhone: updatedOrder.customerPhone,
-        total: Number(updatedOrder.total),
-        status: updatedOrder.status,
-      }),
-    ]);
+    await sendOrderStatusUpdate({
+      orderNumber: updatedOrder.orderNumber,
+      customerName: updatedOrder.customerName,
+      customerEmail: updatedOrder.customerEmail,
+      customerPhone: updatedOrder.customerPhone,
+      shippingAddress: updatedOrder.shippingAddress,
+      total: Number(updatedOrder.total),
+      status: updatedOrder.status,
+      items: updatedOrder.items.map((i) => ({
+        productName: i.productName,
+        quantity: i.quantity,
+        price: Number(i.price),
+        subtotal: Number(i.subtotal),
+      })),
+    });
   }
 
   revalidatePath("/admin/orders");
@@ -422,30 +412,21 @@ export async function updateOrderPayment(id: number, data: { paymentStatus: stri
       include: { items: true },
     });
     if (updatedOrder) {
-      await Promise.allSettled([
-        sendOrderStatusUpdate({
-          orderNumber: updatedOrder.orderNumber,
-          customerName: updatedOrder.customerName,
-          customerEmail: updatedOrder.customerEmail,
-          customerPhone: updatedOrder.customerPhone,
-          shippingAddress: updatedOrder.shippingAddress,
-          total: Number(updatedOrder.total),
-          status: updatedOrder.status,
-          items: updatedOrder.items.map((i) => ({
-            productName: i.productName,
-            quantity: i.quantity,
-            price: Number(i.price),
-            subtotal: Number(i.subtotal),
-          })),
-        }),
-        sendWAOrderStatusUpdate({
-          orderNumber: updatedOrder.orderNumber,
-          customerName: updatedOrder.customerName,
-          customerPhone: updatedOrder.customerPhone,
-          total: Number(updatedOrder.total),
-          status: updatedOrder.status,
-        }),
-      ]);
+      await sendOrderStatusUpdate({
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customerName,
+        customerEmail: updatedOrder.customerEmail,
+        customerPhone: updatedOrder.customerPhone,
+        shippingAddress: updatedOrder.shippingAddress,
+        total: Number(updatedOrder.total),
+        status: updatedOrder.status,
+        items: updatedOrder.items.map((i) => ({
+          productName: i.productName,
+          quantity: i.quantity,
+          price: Number(i.price),
+          subtotal: Number(i.subtotal),
+        })),
+      });
     }
   }
 

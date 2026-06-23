@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart-store";
@@ -18,6 +18,9 @@ import toast from "react-hot-toast";
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => { setHydrated(true); }, []);
 
   const [formData, setFormData] = useState<CheckoutInput>({
     customerName: "",
@@ -42,8 +45,8 @@ export default function CheckoutPage() {
     [errors]
   );
 
-  const cartTotal = total();
-  const isEmpty = items.length === 0;
+  const cartTotal = hydrated ? total() : 0;
+  const isEmpty = hydrated ? items.length === 0 : true;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

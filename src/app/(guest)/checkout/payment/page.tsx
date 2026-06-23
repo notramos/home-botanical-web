@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -25,7 +25,11 @@ export default function PaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { items, total, clearCart } = useCartStore();
-  const cartTotal = total();
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => { setHydrated(true); }, []);
+
+  const cartTotal = hydrated ? total() : 0;
 
   const [method, setMethod] = useState("card");
   const [cardNumber, setCardNumber] = useState("");
