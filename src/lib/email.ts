@@ -6,7 +6,7 @@ const adminEmail = process.env.ADMIN_EMAIL || "admin@homebotanical.com";
 
 function formatPrice(price: number | string): string {
   const num = typeof price === "string" ? parseFloat(price) : price;
-  return `$${num.toFixed(2)}`;
+  return `Rp ${Math.round(num).toLocaleString("id-ID")}`;
 }
 
 function formatDate(): string {

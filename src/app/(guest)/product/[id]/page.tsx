@@ -86,6 +86,7 @@ export default async function ProductDetailPage({
               <ProductGallery
                 productId={product.id}
                 name={product.name}
+                image={product.image}
                 hasDiscount={hasDiscount}
                 discountPercent={discountPercent}
               />

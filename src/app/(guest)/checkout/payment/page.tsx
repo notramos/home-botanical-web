@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { formatPrice, cn, getProductImageUrl } from "@/lib/utils";
+import { formatPrice, cn, resolveProductImage } from "@/lib/utils";
 import { ChevronLeftIcon, LeafIcon } from "@/components/shared/icons";
 import { useCartStore } from "@/stores/cart-store";
 
@@ -346,7 +346,7 @@ export default function PaymentPage() {
                     <div key={item.id} className="flex gap-3 p-3 rounded-xl bg-bg-main border border-black/5">
                       <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
-                          src={getProductImageUrl(item.id)}
+                          src={resolveProductImage(item.image, item.id)}
                           alt={item.name}
                           fill
                           className="object-cover"

@@ -10,7 +10,7 @@ export default function GuestLayout({
   return (
     <>
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-bg-main text-text-light">{children}</main>
       <CartSidebar />
       <Footer />
     </>

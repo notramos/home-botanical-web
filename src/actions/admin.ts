@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { productSchema, orderSchema } from "@/lib/validations";
 import { slugify, generateOrderNumber } from "@/lib/utils";
@@ -12,18 +13,20 @@ function serialize<T>(data: T): T {
   return JSON.parse(JSON.stringify(data));
 }
 
-type StockItem = { productId?: number | null; quantity: number };
-
-async function decrementStock(items: StockItem[]) {
-  for (const item of items) {
-    if (item.productId) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      });
-    }
+/**
+ * Guards every admin mutation. Server Actions are public POST endpoints,
+ * so the protected admin layout is NOT enough — each action must verify
+ * the caller's session itself. Returns a display name for the audit log.
+ */
+async function assertAdmin(): Promise<string> {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") {
+    throw new Error("Tidak diizinkan. Silakan login sebagai admin.");
   }
+  return session.user.name || session.user.email || "Admin";
 }
+
+type StockItem = { productId?: number | null; quantity: number };
 
 async function incrementStock(items: StockItem[]) {
   for (const item of items) {
@@ -37,6 +40,7 @@ async function incrementStock(items: StockItem[]) {
 }
 
 export async function createProduct(data: z.infer<typeof productSchema>) {
+  const actor = await assertAdmin();
   const validated = productSchema.parse(data);
   const slug = validated.slug || slugify(validated.name);
 
@@ -57,7 +61,7 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
       referenceNumber: product.name,
       description: `Menambah produk baru: ${product.name}`,
       newValues: validated as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -66,6 +70,7 @@ export async function createProduct(data: z.infer<typeof productSchema>) {
 }
 
 export async function updateProduct(id: number, data: z.infer<typeof productSchema>) {
+  const actor = await assertAdmin();
   const validated = productSchema.parse(data);
   const oldProduct = await prisma.product.findUnique({ where: { id } });
   if (!oldProduct) throw new Error("Produk tidak ditemukan");
@@ -91,7 +96,7 @@ export async function updateProduct(id: number, data: z.infer<typeof productSche
       description: `Memperbarui produk: ${product.name}`,
       oldValues: oldProduct as any,
       newValues: validated as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -100,6 +105,7 @@ export async function updateProduct(id: number, data: z.infer<typeof productSche
 }
 
 export async function deleteProduct(id: number) {
+  const actor = await assertAdmin();
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) throw new Error("Produk tidak ditemukan");
 
@@ -111,7 +117,7 @@ export async function deleteProduct(id: number) {
       referenceNumber: product.name,
       description: `Menghapus produk: ${product.name}`,
       oldValues: product as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -124,6 +130,7 @@ export async function deleteProduct(id: number) {
 }
 
 export async function toggleFeatured(id: number) {
+  const actor = await assertAdmin();
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) throw new Error("Produk tidak ditemukan");
 
@@ -145,7 +152,7 @@ export async function toggleFeatured(id: number) {
         : `Produk dihapus dari fitur: ${product.name}`,
       oldValues: { isFeatured: product.isFeatured } as any,
       newValues: { isFeatured: newFeatured } as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -154,6 +161,7 @@ export async function toggleFeatured(id: number) {
 }
 
 export async function createOrder(data: z.infer<typeof orderSchema> & { items: { productId?: number; productName: string; productSku?: string; quantity: number; price: number }[] }) {
+  const actor = await assertAdmin();
   const validated = orderSchema.parse(data);
   const items = data.items;
 
@@ -225,7 +233,7 @@ export async function createOrder(data: z.infer<typeof orderSchema> & { items: {
       referenceNumber: order.orderNumber,
       description: `Membuat pesanan baru: ${order.orderNumber}`,
       newValues: validated as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -257,6 +265,7 @@ export async function createOrder(data: z.infer<typeof orderSchema> & { items: {
 }
 
 export async function updateOrder(id: number, data: z.infer<typeof orderSchema> & { items: { productId?: number; productName: string; productSku?: string; quantity: number; price: number }[] }) {
+  const actor = await assertAdmin();
   const validated = orderSchema.parse(data);
   const oldOrder = await prisma.order.findUnique({
     where: { id },
@@ -266,10 +275,6 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
 
   const items = data.items;
   if (items.length === 0) throw new Error("Minimal harus ada 1 item");
-
-  await incrementStock(oldOrder.items);
-
-  await prisma.orderItem.deleteMany({ where: { orderId: id } });
 
   let subtotal = 0;
   const orderItems = items.map((item) => {
@@ -285,26 +290,50 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
     };
   });
 
-  const order = await prisma.order.update({
-    where: { id },
-    data: {
-      customerName: validated.customerName,
-      customerEmail: validated.customerEmail,
-      customerPhone: validated.customerPhone,
-      shippingAddress: validated.shippingAddress,
-      subtotal,
-      total: subtotal,
-      status: validated.status,
-      paymentStatus: validated.paymentStatus,
-      paymentMethod: validated.paymentMethod,
-      paymentReference: validated.paymentReference,
-      notes: validated.notes,
-      items: { create: orderItems },
-    },
-    include: { items: true },
-  });
+  // Restock old items, replace, and decrement new items atomically so a
+  // mid-way failure can never leave stock in a corrupt state.
+  const order = await prisma.$transaction(async (tx) => {
+    for (const item of oldOrder.items) {
+      if (item.productId) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+    }
 
-  await decrementStock(items);
+    await tx.orderItem.deleteMany({ where: { orderId: id } });
+
+    const updated = await tx.order.update({
+      where: { id },
+      data: {
+        customerName: validated.customerName,
+        customerEmail: validated.customerEmail,
+        customerPhone: validated.customerPhone,
+        shippingAddress: validated.shippingAddress,
+        subtotal,
+        total: subtotal,
+        status: validated.status,
+        paymentStatus: validated.paymentStatus,
+        paymentMethod: validated.paymentMethod,
+        paymentReference: validated.paymentReference,
+        notes: validated.notes,
+        items: { create: orderItems },
+      },
+      include: { items: true },
+    });
+
+    for (const item of items) {
+      if (item.productId) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        });
+      }
+    }
+
+    return updated;
+  });
 
   await prisma.transactionLog.create({
     data: {
@@ -315,7 +344,7 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
       description: `Memperbarui pesanan: ${order.orderNumber}`,
       oldValues: oldOrder as any,
       newValues: validated as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -324,6 +353,7 @@ export async function updateOrder(id: number, data: z.infer<typeof orderSchema> 
 }
 
 export async function updateOrderStatus(id: number, status: string) {
+  const actor = await assertAdmin();
   const order = await prisma.order.findUnique({
     where: { id },
     include: { items: true },
@@ -349,7 +379,7 @@ export async function updateOrderStatus(id: number, status: string) {
       description: `Mengubah status pesanan: ${order.orderNumber}`,
       oldValues: { status: order.status } as any,
       newValues: { status } as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -380,6 +410,7 @@ export async function updateOrderStatus(id: number, status: string) {
 }
 
 export async function updateOrderPayment(id: number, data: { paymentStatus: string; paymentMethod?: string; paymentReference?: string }) {
+  const actor = await assertAdmin();
   const order = await prisma.order.findUnique({ where: { id } });
   if (!order) throw new Error("Pesanan tidak ditemukan");
 
@@ -401,7 +432,7 @@ export async function updateOrderPayment(id: number, data: { paymentStatus: stri
       description: `Update pembayaran pesanan: ${order.orderNumber}`,
       oldValues: { paymentStatus: order.paymentStatus } as any,
       newValues: data as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 
@@ -434,6 +465,7 @@ export async function updateOrderPayment(id: number, data: { paymentStatus: stri
 }
 
 export async function deleteOrder(id: number) {
+  const actor = await assertAdmin();
   const order = await prisma.order.findUnique({
     where: { id },
     include: { items: true },
@@ -450,7 +482,7 @@ export async function deleteOrder(id: number) {
       referenceNumber: order.orderNumber,
       description: `Menghapus pesanan: ${order.orderNumber}`,
       oldValues: order as any,
-      performedBy: "Admin",
+      performedBy: actor,
     },
   });
 

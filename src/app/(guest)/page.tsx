@@ -3,15 +3,14 @@ import { HeroCarousel } from "@/components/guest/hero-carousel";
 import { CategoryGrid } from "@/components/guest/category-grid";
 import { ProductCard } from "@/components/guest/product-card";
 import Image from "next/image";
-import { FEATURED_PRODUCTS, VALUES, CATEGORIES } from "@/lib/constants";
-import { LeafIcon, StarIcon } from "@/components/shared/icons";
-import { formatPrice, getBackgroundImageUrl, getProductImageUrl } from "@/lib/utils";
+import { FEATURED_PRODUCTS, VALUES, CATEGORIES, HERO_SLIDES } from "@/lib/constants";
+import { LeafIcon } from "@/components/shared/icons";
 import Link from "next/link";
 
 async function getFeaturedProducts() {
   try {
     const products = await prisma.product.findMany({
-      where: { status: "active", isFeatured: true },
+      where: { status: "active", isFeatured: true, deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 8,
     });
@@ -24,7 +23,7 @@ async function getFeaturedProducts() {
 async function getCategoriesFromDb() {
   try {
     const result = await prisma.product.findMany({
-      where: { status: "active" },
+      where: { status: "active", deletedAt: null },
       select: { category: true },
       distinct: ["category"],
       orderBy: { category: "asc" },
@@ -42,169 +41,204 @@ async function getCategoriesFromDb() {
   }
 }
 
-async function getDbStatus() {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    return true;
-  } catch {
-    return false;
-  }
-}
+const trustBadges = [
+  { label: "Peat-free & sustainable" },
+  { label: "Nursery-fresh, hand-picked" },
+  { label: "Safe delivery guarantee" },
+  { label: "30-day happy-plant promise" },
+];
+
+const careSteps = [
+  {
+    step: "01",
+    title: "Water Wisely",
+    desc: "Let the top inch of soil dry between waterings. When in doubt, wait a day — most houseplants prefer a little thirst over soggy roots.",
+    icon: (
+      <path d="M12 2.5s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z" />
+    ),
+  },
+  {
+    step: "02",
+    title: "Find the Light",
+    desc: "Bright, indirect light is the sweet spot. An east or north-facing window keeps foliage lush without scorching those leaves.",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </>
+    ),
+  },
+  {
+    step: "03",
+    title: "Boost Humidity",
+    desc: "Tropicals love moisture. Group plants together, mist regularly, or sit pots on a pebble tray to recreate that jungle feel.",
+    icon: (
+      <>
+        <path d="M8 3s3 3.5 3 6a3 3 0 1 1-6 0c0-2.5 3-6 3-6z" />
+        <path d="M17 9s2.5 3 2.5 5a2.5 2.5 0 1 1-5 0c0-2 2.5-5 2.5-5z" />
+      </>
+    ),
+  },
+];
 
 const reviews = [
   {
     name: "Emily R.",
+    location: "Melbourne",
     avatar: "E",
-    text: "My Monstera arrived in perfect condition and is thriving! The packaging was eco-friendly and the plant was so healthy.",
-    image:
-      "https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=400&q=80",
+    text: "My Monstera arrived in perfect condition and is thriving. The packaging was eco-friendly and the plant looked healthier than any I've bought in-store.",
   },
   {
     name: "James K.",
+    location: "Sydney",
     avatar: "J",
-    text: "I was nervous ordering plants online, but Home Botanical exceeded my expectations. The Fiddle Leaf Fig is stunning.",
-    image:
-      "https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80",
+    text: "I was nervous ordering plants online, but Home Botanical exceeded every expectation. The Fiddle Leaf Fig is stunning and settled in beautifully.",
   },
   {
     name: "Sophia L.",
+    location: "Brisbane",
     avatar: "S",
-    text: "Beautiful selection of low-light plants for my apartment. Customer service was incredibly helpful in choosing the right plants.",
-    image:
-      "https://images.unsplash.com/photo-1774053054226-ecabae8bbde6?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
-const plantCareTips = [
-  {
-    title: "Water Wisely",
-    desc: "Most indoor plants thrive when you let the soil dry out between waterings. Stick your finger an inch deep — if it's dry, it's time to water.",
-    image:
-      "https://images.unsplash.com/photo-1557187666-4fd70cf76254?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    title: "Perfect Light",
-    desc: "Bright indirect light is the sweet spot for most houseplants. Near an east or north-facing window is ideal for lush, happy growth.",
-    image:
-      "https://images.unsplash.com/photo-1584589167171-541ce45f1eea?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    title: "Humidity Boost",
-    desc: "Tropical plants love humidity. Mist them regularly, group plants together, or place a tray of water nearby to create a mini greenhouse effect.",
-    image:
-      "https://images.unsplash.com/photo-1551884170-09fb70a3a2ed?auto=format&fit=crop&w=600&q=80",
-  },
-];
-
-const instagramPhotos = [
-  {
-    src: "https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=600&q=80",
-    alt: "Potted plant collection",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=600&q=80",
-    alt: "Ceramic pots display",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1778079840490-af5643183fcd?auto=format&fit=crop&w=600&q=80",
-    alt: "Indoor garden setup",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80",
-    alt: "Succulent arrangement",
+    text: "A beautiful selection of low-light plants for my apartment. Customer service genuinely helped me choose the right ones for my space.",
   },
 ];
 
 export default async function HomePage() {
-  const [dbOk, featuredProducts, dbCategories] = await Promise.all([
-    getDbStatus(),
+  const [featuredProducts, dbCategories] = await Promise.all([
     getFeaturedProducts(),
     getCategoriesFromDb(),
   ]);
 
-  const displayProducts =
-    dbOk && featuredProducts
-      ? featuredProducts.map((p) => ({
-          id: p.id,
-          name: p.name,
-          price: Number(p.price),
-          originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
-          image: p.image ?? undefined,
-          category: p.category ?? undefined,
-        }))
-      : FEATURED_PRODUCTS.map((p, i) => ({
-          id: i + 1,
-          name: p.name,
-          price: parseFloat(p.price.replace("$", "")),
-          image: p.photo,
-        }));
+  const displayProducts = featuredProducts
+    ? featuredProducts.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: Number(p.price),
+        originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
+        image: p.image ?? undefined,
+        category: p.category ?? undefined,
+      }))
+    : FEATURED_PRODUCTS.map((p, i) => ({
+        id: i + 1,
+        name: p.name,
+        price: parseFloat(p.price.replace("$", "")),
+        image: p.photo,
+      }));
 
   const categories =
-    dbOk && dbCategories
-      ? dbCategories
-      : CATEGORIES.filter((c) => c !== "All Plants").map((c) => ({
-          slug: c.toLowerCase().replace(/\s+/g, "_"),
-          name: c,
-        }));
-
-  const values = VALUES;
+    dbCategories ??
+    CATEGORIES.filter((c) => c !== "All Plants").map((c) => ({
+      slug: c.toLowerCase().replace(/\s+/g, "_"),
+      name: c,
+    }));
 
   return (
     <>
       <HeroCarousel />
 
-      {/* Banner CTA — full width with botanical gradient */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${getBackgroundImageUrl(2)})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-forest/40 to-emerald/25" />
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <LeafIcon className="w-8 h-8 text-emerald/80 mx-auto mb-4" />
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-bg-main mb-4">
-            Not sure which plant is right for you?
-          </h2>
-          <p className="text-bg-main/80 text-base md:text-lg mb-8 max-w-2xl mx-auto">
-            Take our quick plant quiz and we will match you with the perfect
-            green companion for your space and lifestyle.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
+      {/* ── Trust strip ─────────────────────────────────────── */}
+      <section className="border-y border-forest/10 bg-bg-soft">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ul className="flex flex-wrap items-center justify-center md:justify-between gap-x-8 gap-y-3 py-5 list-none m-0">
+            {trustBadges.map((b, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-2 text-xs md:text-sm text-text-muted tracking-wide"
+              >
+                <LeafIcon className="w-4 h-4 text-emerald shrink-0" />
+                {b.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ── Editorial intro ─────────────────────────────────── */}
+      <section className="py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Image collage */}
+            <div className="relative">
+              <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl shadow-forest/15">
+                <Image
+                  src={HERO_SLIDES[0].image}
+                  alt="A sunlit corner styled with indoor plants"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              </div>
+              {/* Floating accent card */}
+              <div className="absolute -bottom-6 -right-2 md:-right-6 w-40 md:w-48 aspect-square rounded-2xl overflow-hidden border-4 border-bg-main shadow-xl hidden sm:block">
+                <Image
+                  src={HERO_SLIDES[1].image}
+                  alt="Trailing pothos detail"
+                  fill
+                  className="object-cover"
+                  sizes="200px"
+                />
+              </div>
+              {/* Organic decor blob */}
+              <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-sage/25 -z-10 hidden md:block" />
+            </div>
+
+            {/* Copy */}
+            <div className="max-w-xl">
+              <p className="text-emerald text-xs font-medium tracking-[0.25em] uppercase mb-5">
+                Our Little Green Philosophy
+              </p>
+              <h2 className="font-heading text-3xl md:text-5xl font-semibold text-text-light leading-tight mb-6">
+                Bring the calm of the outdoors into every room
+              </h2>
+              <p className="text-text-muted text-base md:text-lg leading-relaxed mb-6">
+                Home Botanical began with a simple belief — that a home full of
+                thriving plants is a home that breathes easier. Every plant in
+                our collection is nursery-grown, hand-selected, and cared for
+                until the moment it reaches your door.
+              </p>
+              <div className="grid grid-cols-3 gap-4 mb-8 border-t border-forest/10 pt-6">
+                {[
+                  { value: "120+", label: "Plant varieties" },
+                  { value: "8k+", label: "Happy plant parents" },
+                  { value: "4.9", label: "Average rating" },
+                ].map((stat, i) => (
+                  <div key={i}>
+                    <p className="font-heading text-2xl md:text-3xl font-bold text-forest">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs text-text-muted mt-1">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
               <Link
-                href="/catalog"
-                className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-forest text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-emerald hover:-translate-y-0.5"
-            >
-              Browse Collection
-            </Link>
-            <Link
-              href="/plant-care"
-              className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-transparent text-bg-main text-sm tracking-wider no-underline border border-bg-main/40 transition-all duration-300 hover:bg-emerald/10 hover:border-emerald"
-            >
-              Plant Care Guide
-            </Link>
+                href="/about"
+                className="inline-flex h-12 px-8 items-center justify-center rounded-full bg-forest text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-emerald hover:-translate-y-0.5"
+              >
+                Read Our Story
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Values — card style with icons */}
-      <section className="py-16 md:py-24">
+      {/* ── Values ──────────────────────────────────────────── */}
+      <section className="relative overflow-hidden py-16 md:py-24 bg-bg-warm/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-semibold text-text-light mb-3">
-              Why Home Botanical?
-            </h2>
-            <p className="text-text-muted text-base max-w-xl mx-auto">
-              We make plant parenthood easy, sustainable, and joyful.
+            <p className="text-emerald text-xs font-medium tracking-[0.25em] uppercase mb-3">
+              Why Home Botanical
             </p>
+            <h2 className="text-3xl md:text-4xl font-heading font-semibold text-text-light">
+              Plant parenthood, made joyful
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {values.map((value, i) => (
+            {VALUES.map((value, i) => (
               <div
                 key={i}
-                className="group rounded-xl border border-forest/15 bg-bg-soft/50 p-8 text-center transition-all duration-300 hover:border-forest/30 hover:bg-bg-soft hover:-translate-y-1"
+                className="group rounded-2xl border border-forest/12 bg-bg-soft p-8 text-center transition-all duration-300 hover:border-emerald/40 hover:shadow-xl hover:shadow-forest/10 hover:-translate-y-1"
               >
-                <div className="w-14 h-14 rounded-full bg-emerald/15 flex items-center justify-center mx-auto mb-5 group-hover:bg-emerald/25 transition-colors">
-                  <LeafIcon className="w-6 h-6 text-emerald" />
+                <div className="w-16 h-16 rounded-2xl bg-emerald/12 flex items-center justify-center mx-auto mb-6 group-hover:bg-emerald/20 transition-colors">
+                  <LeafIcon className="w-7 h-7 text-emerald" />
                 </div>
                 <h3 className="text-xl md:text-2xl font-heading font-semibold text-text-light mb-3">
                   {value.title}
@@ -218,190 +252,184 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories Grid — full botanical gradient */}
-      <section className="relative overflow-hidden" id="categories">
-        <div className="absolute inset-0 bg-gradient-to-br from-sage/25 to-moss/20" />
-        <div className="relative z-10">
-          <CategoryGrid categories={categories} title="Shop by Category" />
-        </div>
+      {/* ── Categories ──────────────────────────────────────── */}
+      <section id="categories">
+        <CategoryGrid categories={categories} title="Shop by Category" />
       </section>
 
-      {/* Plant Care Tips */}
-      <section className="py-16 md:py-24">
+      {/* ── Featured products ───────────────────────────────── */}
+      <section className="relative overflow-hidden py-16 md:py-24 bg-bg-warm/60" id="best-sellers">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-semibold text-text-light mb-3">
-              Plant Care 101
-            </h2>
-            <p className="text-text-muted text-base max-w-xl mx-auto">
-              Simple tips to keep your greenery thriving all year round.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+            <div>
+              <p className="text-emerald text-xs font-medium tracking-[0.25em] uppercase mb-3">
+                Handpicked by our team
+              </p>
+              <h2 className="text-3xl md:text-5xl font-heading font-semibold text-forest">
+                Best Sellers
+              </h2>
+            </div>
+            <Link
+              href="/catalog"
+              className="text-sm font-medium text-forest hover:text-emerald transition-colors self-start md:self-auto"
+            >
+              View all plants →
+            </Link>
           </div>
-            <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-              {plantCareTips.map((tip, i) => (
+          <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+            {displayProducts.map((product) => (
               <div
-                key={i}
-                className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto group rounded-xl overflow-hidden border border-emerald/15 bg-bg-soft/50 transition-all duration-300 hover:border-emerald/30 hover:-translate-y-1"
+                key={product.id}
+                className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto"
               >
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={tip.image}
-                    alt={tip.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-heading font-semibold text-text-light mb-2">
-                    {tip.title}
-                  </h3>
-                  <p className="text-text-muted text-sm leading-relaxed">
-                    {tip.desc}
-                  </p>
-                </div>
+                <ProductCard product={product} />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Products — full botanical gradient */}
-      <section className="relative overflow-hidden" id="best-sellers">
-        <div className="absolute inset-0 bg-gradient-to-br from-forest/25 to-emerald/15" />
-        <div className="relative z-10 py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-heading font-semibold text-forest mb-3">
-                Aussie Favourites
-              </h2>
-              <p className="text-accent-green/80 text-base max-w-xl mx-auto">
-                Handpicked by our team — these are the plants Australia loves
-                most.
-              </p>
-            </div>
-            <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-              {displayProducts.map((product) => (
-                <div key={product.id} className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto">
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-            <div className="mt-12 text-center">
-              <Link
-                href="/catalog"
-              className="inline-flex h-12 px-10 items-center justify-center rounded-sm bg-forest text-bg-main text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-emerald hover:-translate-y-0.5"
+      {/* ── Plant Care 101 ──────────────────────────────────── */}
+      <section className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <p className="text-emerald text-xs font-medium tracking-[0.25em] uppercase mb-3">
+              Plant Care 101
+            </p>
+            <h2 className="text-3xl md:text-4xl font-heading font-semibold text-text-light mb-3">
+              Keep your greenery thriving
+            </h2>
+            <p className="text-text-muted text-base max-w-xl mx-auto">
+              Three simple habits that make all the difference — no green thumb
+              required.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {careSteps.map((tip, i) => (
+              <div
+                key={i}
+                className="relative rounded-2xl border border-forest/12 bg-bg-soft p-8 pt-10 transition-all duration-300 hover:border-emerald/40 hover:-translate-y-1"
               >
-                View All Plants
-              </Link>
-            </div>
+                <span className="absolute top-6 right-7 font-heading text-5xl font-bold text-forest/8 select-none">
+                  {tip.step}
+                </span>
+                <div className="w-14 h-14 rounded-xl bg-emerald/12 flex items-center justify-center mb-6">
+                  <svg
+                    className="w-7 h-7 text-emerald"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {tip.icon}
+                  </svg>
+                </div>
+                <h3 className="text-xl font-heading font-semibold text-text-light mb-2">
+                  {tip.title}
+                </h3>
+                <p className="text-text-muted text-sm leading-relaxed">
+                  {tip.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+            <Link
+              href="/plant-care"
+              className="inline-flex h-12 px-8 items-center justify-center rounded-full border border-forest/30 text-forest text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-forest hover:text-bg-main"
+            >
+              Full Plant Care Guide
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Reviews — 3-column grid */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-heading font-semibold text-text-light mb-3">
-              Loved by Plant Parents
-            </h2>
-            <p className="text-text-muted text-base max-w-xl mx-auto">
-              Real reviews from real plant lovers across Australia.
+      {/* ── Reviews ─────────────────────────────────────────── */}
+      <section className="relative overflow-hidden py-16 md:py-24 bg-forest">
+        {/* subtle botanical texture */}
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 20% 30%, white 1px, transparent 1px), radial-gradient(circle at 70% 60%, white 1px, transparent 1px)",
+            backgroundSize: "60px 60px",
+          }}
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <p className="text-sage text-xs font-medium tracking-[0.25em] uppercase mb-3">
+              Loved by plant parents
             </p>
+            <h2 className="text-3xl md:text-4xl font-heading font-semibold text-bg-main">
+              Real reviews, real green thumbs
+            </h2>
           </div>
-          <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {reviews.map((review, i) => (
-              <div
+              <figure
                 key={i}
-                className="snap-start shrink-0 w-[75vw] sm:w-[45vw] md:w-auto rounded-xl border border-forest/10 bg-bg-soft/30 p-6 transition-all duration-300 hover:border-forest/25 hover:-translate-y-1"
+                className="rounded-2xl bg-bg-main/8 border border-bg-main/12 backdrop-blur-sm p-8 transition-all duration-300 hover:bg-bg-main/12"
               >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-forest/15 flex items-center justify-center text-forest font-heading font-bold text-lg flex-shrink-0">
+                <div className="flex text-accent-gold text-sm tracking-[3px] mb-4">
+                  {"★".repeat(5)}
+                </div>
+                <blockquote className="text-bg-main/85 text-sm leading-relaxed mb-6">
+                  &ldquo;{review.text}&rdquo;
+                </blockquote>
+                <figcaption className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-sage/25 flex items-center justify-center text-bg-main font-heading font-bold text-lg">
                     {review.avatar}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-text-light">
+                    <p className="text-sm font-medium text-bg-main">
                       {review.name}
                     </p>
-                    <div className="flex text-accent-gold text-xs tracking-[2px] mt-0.5">
-                      {"★".repeat(5)}
-                    </div>
+                    <p className="text-xs text-sage">{review.location}</p>
                   </div>
-                </div>
-                <p className="text-text-muted text-sm leading-relaxed mb-4">
-                  &ldquo;{review.text}&rdquo;
-                </p>
-                <div className="relative h-32 rounded-lg overflow-hidden">
-                  <Image
-                    src={review.image}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
-                </div>
-              </div>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Instagram Feed — full botanical gradient */}
+      {/* ── Closing CTA ─────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${getBackgroundImageUrl(3)})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald/30 to-forest/25" />
-        <div className="relative z-10 py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-heading font-semibold text-white mb-3">
-                Follow Us
-              </h2>
-              <p className="text-white/80 text-base max-w-xl mx-auto">
-                Tag{" "}
-                <span className="text-emerald font-medium">
-                  @homebotanical
-                </span>{" "}
-                for a chance to be featured.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              {instagramPhotos.map((photo, i) => (
-                <a
-                  key={i}
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative aspect-square rounded-xl overflow-hidden"
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald/25 to-transparent pointer-events-none" />
-                  <div className="absolute inset-0 bg-emerald/0 group-hover:bg-emerald/20 transition-colors duration-300 flex items-center justify-center">
-                    <svg
-                      className="w-8 h-8 text-bg-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                    </svg>
-                  </div>
-                </a>
-              ))}
+        <div className="absolute inset-0">
+          <Image
+            src={HERO_SLIDES[2].image}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-forest/95 via-forest/80 to-forest/50" />
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+          <div className="max-w-xl">
+            <LeafIcon className="w-8 h-8 text-sage mb-5" />
+            <h2 className="text-3xl md:text-5xl font-heading font-semibold text-bg-main leading-tight mb-5">
+              Not sure where to start?
+            </h2>
+            <p className="text-bg-main/80 text-base md:text-lg leading-relaxed mb-8">
+              Tell us about your space and lifestyle — we&apos;ll match you with
+              the perfect low-effort, high-joy green companion.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link
+                href="/catalog"
+                className="inline-flex h-12 px-10 items-center justify-center rounded-full bg-bg-main text-forest text-sm font-medium tracking-wider no-underline transition-all duration-300 hover:bg-sage hover:-translate-y-0.5"
+              >
+                Browse Collection
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex h-12 px-10 items-center justify-center rounded-full bg-transparent text-bg-main text-sm tracking-wider no-underline border border-bg-main/40 transition-all duration-300 hover:border-sage hover:bg-bg-main/10"
+              >
+                Talk to a Plant Expert
+              </Link>
             </div>
           </div>
         </div>

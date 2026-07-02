@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { cn, formatPrice, getProductImageUrl } from "@/lib/utils";
+import { cn, formatPrice, resolveProductImage } from "@/lib/utils";
 import { useCartStore } from "@/stores/cart-store";
 import { HeartIcon, StarIcon } from "@/components/shared/icons";
 import { useState } from "react";
@@ -57,7 +57,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
         {!imgError ? (
           <>
             <Image
-              src={getProductImageUrl(product.id)}
+              src={resolveProductImage(product.image, product.id)}
               alt={product.name}
               fill
               className={cn(

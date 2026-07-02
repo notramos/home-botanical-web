@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { getProductImageUrl } from "@/lib/utils";
+import { resolveProductImage } from "@/lib/utils";
 
 interface ProductGalleryProps {
   productId: number;
   name: string;
+  image?: string | null;
   hasDiscount: boolean;
   discountPercent: number;
 }
@@ -14,6 +15,7 @@ interface ProductGalleryProps {
 export function ProductGallery({
   productId,
   name,
+  image,
   hasDiscount,
   discountPercent,
 }: ProductGalleryProps) {
@@ -24,7 +26,7 @@ export function ProductGallery({
       {!imgError ? (
         <>
           <Image
-            src={getProductImageUrl(productId, 600)}
+            src={resolveProductImage(image, productId, 600)}
             alt={name}
             fill
             className="object-cover"

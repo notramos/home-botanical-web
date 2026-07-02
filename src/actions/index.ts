@@ -16,7 +16,7 @@ export async function getProducts(params?: {
   const perPage = params?.perPage || 10;
   const skip = (page - 1) * perPage;
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = { deletedAt: null };
   if (params?.search) {
     where.OR = [
       { name: { contains: params.search, mode: "insensitive" } },
@@ -49,16 +49,16 @@ export async function getProducts(params?: {
 }
 
 export async function getProductById(id: number) {
-  const product = await prisma.product.findUnique({ where: { id } });
+  const product = await prisma.product.findFirst({ where: { id, deletedAt: null } });
   return product ? serialize(product) : null;
 }
 
 export async function getProductStats() {
   const [total, active, draft, outOfStock] = await Promise.all([
-    prisma.product.count(),
-    prisma.product.count({ where: { status: "active" } }),
-    prisma.product.count({ where: { status: "draft" } }),
-    prisma.product.count({ where: { stock: { lte: 0 } } }),
+    prisma.product.count({ where: { deletedAt: null } }),
+    prisma.product.count({ where: { status: "active", deletedAt: null } }),
+    prisma.product.count({ where: { status: "draft", deletedAt: null } }),
+    prisma.product.count({ where: { stock: { lte: 0 }, deletedAt: null } }),
   ]);
   return { total, active, draft, outOfStock };
 }
@@ -68,6 +68,7 @@ export async function getCategories() {
     where: {
       status: "active",
       category: { not: null },
+      deletedAt: null,
     },
     select: { category: true, image: true },
     distinct: ["category"],
@@ -199,7 +200,7 @@ export async function getTransactionById(id: number) {
 
 export async function getActiveProducts() {
   const products = await prisma.product.findMany({
-    where: { status: "active", stock: { gt: 0 } },
+    where: { status: "active", stock: { gt: 0 }, deletedAt: null },
     select: { id: true, name: true, price: true, stock: true },
   });
   return serialize(products);

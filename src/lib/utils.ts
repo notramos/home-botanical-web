@@ -5,12 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number | string, currency: "IDR" | "USD" = "USD"): string {
+export function formatPrice(price: number | string, currency: "IDR" | "USD" = "IDR"): string {
   const num = typeof price === "string" ? parseFloat(price) : price;
-  if (currency === "IDR") {
-    return `Rp ${num.toLocaleString("id-ID")}`;
+  if (currency === "USD") {
+    return `$${num.toFixed(2)}`;
   }
-  return `$${num.toFixed(2)}`;
+  return `Rp ${Math.round(num).toLocaleString("id-ID")}`;
 }
 
 export function formatDate(date: Date | string, locale: "id" | "en" = "en"): string {
@@ -92,6 +92,20 @@ const PLANT_PHOTO_IDS = [
 export function getProductImageUrl(seed: number, size = 400): string {
   const id = PLANT_PHOTO_IDS[seed % PLANT_PHOTO_IDS.length];
   return `https://images.unsplash.com/photo-${id}?w=${size}&h=${Math.round(size * 0.75)}&fit=crop&auto=format`;
+}
+
+/**
+ * Single source of truth for product imagery. Uses the product's own
+ * `image` when set, otherwise a stable deterministic placeholder keyed
+ * by id — so the card, cart, checkout, and gallery always agree.
+ */
+export function resolveProductImage(
+  image: string | null | undefined,
+  seed: number,
+  size = 400,
+): string {
+  const trimmed = image?.trim();
+  return trimmed ? trimmed : getProductImageUrl(seed, size);
 }
 
 const BG_PHOTO_IDS = [

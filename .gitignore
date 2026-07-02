@@ -36,6 +36,9 @@ yarn-error.log*
 # whatsapp session (baileys)
 wa_session/
 
+# uploaded product images (served from /public/uploads)
+/public/uploads/
+
 # vercel
 .vercel
 

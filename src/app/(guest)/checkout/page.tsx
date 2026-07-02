@@ -4,9 +4,9 @@ import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart-store";
-import { createOrder } from "@/actions/admin";
+import { createPublicOrder } from "@/actions/checkout";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
-import { formatPrice, cn, getProductImageUrl } from "@/lib/utils";
+import { formatPrice, cn, resolveProductImage } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCartStore();
+  const { items, total } = useCartStore();
   const router = useRouter();
   const [hydrated, setHydrated] = useState(false);
 
@@ -66,21 +66,19 @@ export default function CheckoutPage() {
 
     setSubmitting(true);
     try {
-      const order = await createOrder({
+      const order = await createPublicOrder({
         customerName: parsed.data.customerName,
         customerEmail: parsed.data.customerEmail,
-        customerPhone: parsed.data.customerPhone || null,
+        customerPhone: parsed.data.customerPhone || undefined,
         shippingAddress: parsed.data.shippingAddress,
-        status: "pending",
-        paymentStatus: "unpaid",
         items: items.map((item) => ({
           productId: item.id,
-          productName: item.name,
           quantity: item.qty,
-          price: item.price,
         })),
       });
 
+      // Cart is cleared on the payment page after payment succeeds, so the
+      // order summary there still has items to show.
       router.push(`/checkout/payment?order=${order.orderNumber}`);
     } catch (err) {
       const message =
@@ -229,7 +227,7 @@ export default function CheckoutPage() {
                       >
                          <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                            <Image
-                             src={getProductImageUrl(item.id)}
+                             src={resolveProductImage(item.image, item.id)}
                              alt={item.name}
                              fill
                              className="object-cover"

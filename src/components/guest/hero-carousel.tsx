@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import { cn, getProductImageUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { HERO_SLIDES } from "@/lib/constants";
 
 interface HeroCarouselProps {
@@ -73,11 +73,11 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
             >
               <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${getProductImageUrl(index, 800)})` }}
+                style={{ backgroundImage: `url(${slide.image})` }}
               />
               <div
                 className={cn(
-                  "absolute inset-0 bg-gradient-to-br from-emerald/40 via-forest/30 to-sage/25 transition-transform duration-[8s] ease-out",
+                  "absolute inset-0 bg-gradient-to-br from-emerald/30 via-forest/20 to-sage/15 transition-transform duration-[8s] ease-out",
                   index === current && "scale-110"
                 )}
               />
@@ -111,11 +111,11 @@ export function HeroCarousel({ className }: HeroCarouselProps) {
           >
             <div
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${getProductImageUrl(index, 500)})` }}
+                style={{ backgroundImage: `url(${slide.image})` }}
               />
             <div
                 className={cn(
-                  "absolute inset-0 bg-gradient-to-br from-emerald/40 via-forest/30 to-sage/25 transition-transform duration-[6s] ease-out",
+                  "absolute inset-0 bg-gradient-to-br from-emerald/30 via-forest/20 to-sage/15 transition-transform duration-[6s] ease-out",
                   index === current && "scale-110"
                 )}
               />

@@ -48,20 +48,31 @@
   --color-sidebar-border: oklch(0.922 0 0);
   --color-sidebar-ring: oklch(0.708 0 0);
 
-  --color-accent-green: var(--color-foreground);
-  --color-accent-light: var(--color-foreground);
-  --color-accent-gold: oklch(0.6 0.1 80);
-  --color-bg-main: var(--color-background);
-  --color-bg-soft: var(--color-card);
-  --color-bg-warm: var(--color-accent);
-  --color-text-light: var(--color-foreground);
-  --color-text-muted: var(--color-muted-foreground);
+  /* ── Botanical brand palette ──────────────────────────────
+     Warm cream base + layered greens + earthy accents.
+     Guest-facing aliases are concrete values (decoupled from
+     the neutral shadcn tokens so the admin stays clean). */
+  --color-cream: oklch(0.973 0.014 92);
+  --color-bg-main: oklch(0.973 0.014 92);   /* warm cream page base   */
+  --color-bg-soft: oklch(0.992 0.007 92);   /* near-white warm cards  */
+  --color-bg-warm: oklch(0.945 0.022 85);   /* sand / warm surface    */
+
+  --color-text-light: oklch(0.27 0.03 155); /* deep forest charcoal   */
+  --color-text-muted: oklch(0.48 0.022 150);/* muted green-gray       */
+
+  --color-forest: oklch(0.33 0.055 155);    /* primary deep green     */
+  --color-moss: oklch(0.43 0.06 148);       /* mid green              */
+  --color-emerald: oklch(0.55 0.13 152);    /* vivid accent green     */
+  --color-sage: oklch(0.74 0.05 148);       /* soft muted green       */
+
+  --color-accent-green: oklch(0.4 0.06 152);
+  --color-accent-light: oklch(0.74 0.05 148);
+  --color-accent-gold: oklch(0.72 0.1 80);  /* warm gold              */
+  --color-terracotta: oklch(0.64 0.12 45);  /* earthy clay accent     */
+
   --color-danger: var(--color-destructive);
   --color-success: oklch(0.5 0.15 150);
   --color-info: oklch(0.55 0.12 240);
-  --color-forest: oklch(0.3 0.05 150);
-  --color-moss: oklch(0.35 0.05 140);
-  --color-emerald: oklch(0.5 0.15 150);
 }
 
 :root {

@@ -4,7 +4,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { CloseIcon, PlusIcon, MinusIcon } from "@/components/shared/icons";
-import { formatPrice, cn, getProductImageUrl } from "@/lib/utils";
+import { formatPrice, cn, resolveProductImage } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 
 export function CartSidebar() {
@@ -112,7 +112,7 @@ export function CartSidebar() {
                   {/* Image */}
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
                     <Image
-                      src={getProductImageUrl(item.id)}
+                      src={resolveProductImage(item.image, item.id)}
                       alt={item.name}
                       fill
                       className="object-cover"

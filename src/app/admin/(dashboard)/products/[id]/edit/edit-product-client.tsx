@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import FormField from "@/components/admin/form-field";
+import ImageUpload from "@/components/admin/image-upload";
 import DeleteModal from "@/components/admin/delete-modal";
 import { updateProduct, deleteProduct } from "@/actions/admin";
 import { categories, slugify } from "@/lib/utils";
@@ -198,7 +199,7 @@ export default function EditProductClient({ product }: EditProductClientProps) {
             <FormField label="Stock" name="stock" type="number" value={form.stock} onChange={handleChange("stock")} error={errors.stock} placeholder="0" />
             <FormField label="SKU" name="sku" value={form.sku} onChange={handleChange("sku")} error={errors.sku} placeholder="SKU-001" />
           </div>
-          <FormField label="Image URL" name="image" type="url" value={form.image} onChange={handleChange("image")} error={errors.image} placeholder="https://" imagePreview />
+          <ImageUpload label="Product Image" value={form.image} onChange={handleChange("image")} error={errors.image} hint="Diunggah ke server & dioptimasi otomatis" />
         </div>
 
         <div className="bg-bg-soft rounded-xl border border-accent-green/10 p-6 space-y-4">
